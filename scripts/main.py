@@ -24,6 +24,7 @@ from train import train_gan
 from data_sets import HandDataset_seq, WhiteNoise, Normalize, vec2mat
 from utils import angles_error, estimate_model, check_model, load_data
 
+random.seed(42)
 
 ####################################################
 # Main function
