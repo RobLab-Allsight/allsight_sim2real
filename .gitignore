@@ -3,5 +3,4 @@ datasets
 contrib
 web
 checkpoints
-*.__pycache__
-.pyc
+*/__pycache__
