@@ -3,4 +3,6 @@ datasets
 contrib
 web
 checkpoints
+*.png
+*.pth
 */__pycache__
