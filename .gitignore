@@ -6,3 +6,4 @@ checkpoints
 *.png
 *.pth
 */__pycache__
+results
