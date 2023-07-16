@@ -106,14 +106,22 @@ class Trainer(object):
 
     def prepare_data(self, paths, output_type):
 
+        # for idx, p in enumerate(paths):
+        #     if idx == 0:
+        #         df_data = pd.read_json(p).transpose()
+        #     else:
+        #         df_data = pd.concat([df_data, pd.read_json(p).transpose()], axis=0)
         for idx, p in enumerate(paths):
             if idx == 0:
-                df_data = pd.read_json(p).transpose()
+                df_data_train = pd.read_json(p).transpose()
             else:
-                df_data = pd.concat([df_data, pd.read_json(p).transpose()], axis=0)
+                df_data_test = pd.read_json(p).transpose()    
 
-        train_df, remain_df = train_test_split(df_data, test_size=0.22, shuffle=True)
-        valid_df, test_df = train_test_split(remain_df, test_size=0.5, shuffle=True)
+        # train_df, remain_df = train_test_split(df_data, test_size=0.22, shuffle=True)
+        # valid_df, test_df = train_test_split(remain_df, test_size=0.5, shuffle=True)
+        
+        train_df, valid_df = train_test_split(df_data_train, test_size=0.22, shuffle=True)
+        test_df = df_data_test
 
         self.train_transform = transforms.Compose([
             transforms.ToPILImage(),

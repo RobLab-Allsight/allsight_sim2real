@@ -8,3 +8,4 @@ checkpoints
 *.pth
 */__pycache__
 results
+train_allsight_regressor/train_history

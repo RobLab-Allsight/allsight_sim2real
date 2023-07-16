@@ -98,7 +98,7 @@ def get_buffer_paths_sim(leds, indenter):
     #     for p in paths:
     #         buffer_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
 
-    return ['/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_test_1k_transformed.json']
+    return ['/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_train_1k_transformed.json','/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_test_1k_transformed.json']
 
 
 def get_inputs_and_targets(group, output_type):
