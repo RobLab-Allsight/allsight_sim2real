@@ -1,6 +1,7 @@
 datasets
 .vscode
 contrib
+allsight_contrib
 web
 checkpoints
 *.png
