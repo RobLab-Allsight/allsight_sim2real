@@ -19,7 +19,11 @@ pc_name = os.getlogin()
 leds = 'rrrgggbbb'
 gel = 'clear'
 indenter = ['20', '30', '40']
+data_name_1 = 'real_train_1k'
+data_name_2 = 'real_test_1k'
 real_paths = [f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
+JSON_FILE_1 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_1}.json"
+JSON_FILE_2 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_2}.json"
 
 n_sam = 2000   
 ###########################
@@ -42,13 +46,34 @@ for idx, p in enumerate(buffer_real_paths):
 # Filter and sample
 ###########################        
    
-df_data_real = df_data_real[df_data_real.time > 2.0]  # only over touching samples!
+df_data_real = df_data_real[df_data_real.time > 3.0]  # only over touching samples!
 df_data_real = df_data_real.sample(n=n_sam)
 
 old_path = "/home/osher/catkin_ws/src/allsight/dataset/"
 new_path = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_dataset/"
 
 df_data_real['frame'] = df_data_real['frame'].str.replace(old_path, new_path)
+
+df_train_real = df_data_real.iloc[:int(n_sam/2),:]
+print(df_train_real.shape)
+df_test_real =  df_data_real.iloc[int(n_sam/2):,:]
+print(df_test_real.shape)
+###########################
+# Save real df to json
+########################### 
+# import json
+
+# to_dict = {}
+# for index, row in list(df_train_real.iterrows()):
+#     to_dict[index] = dict(row)
+# with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
+#     json.dump(to_dict, json_file, indent=3)
+    
+# to_dict2 = {}
+# for index, row in list(df_test_real.iterrows()):
+#     to_dict2[index] = dict(row)
+# with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
+#     json.dump(to_dict2, json_file, indent=3)
     
 ###########################
 # Save real image df
