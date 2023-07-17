@@ -84,21 +84,31 @@ def get_buffer_paths(leds, gel, indenter, sensor_id=None):
     return buffer_paths_to_train, buffer_paths_to_test, list(set(trained_sensor_id)), list(set(test_sensor_id))
 
 
-def get_buffer_paths_sim(leds, indenter):
-    if leds == 'combined':
-        leds_list = ['rrrgggbbb', 'rgbrgbrgb', 'white']
-    else:
-        leds_list = [leds]
+def get_buffer_paths_sim(leds, indenter, data_type):
+    # if leds == 'combined':
+    #     leds_list = ['rrrgggbbb', 'rgbrgbrgb', 'white']
+    # else:
+    #     leds_list = [leds]
 
-    buffer_paths = []
+    # buffer_paths = []
     # for l in leds_list:
     #     path_alon = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/'
     #     # paths = [f"/home/roblab20/allsight_sim/experiments/dataset/{l}/data/{ind}" for ind in indenter]
     #     paths = path_alon
     #     for p in paths:
     #         buffer_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
-
-    return ['/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_train_1k_transformed.json','/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_test_1k_transformed.json']
+    if data_type == 'real':
+        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_train_1k_transformed.json'     
+    elif data_type == 'sim':
+        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/sim_train_1k_transformed.json'
+    elif data_type == 'gan':
+        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/gan_train_1k_transformed.json'
+    elif data_type == 'gan_test':
+        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/gan_test_1k_transformed.json'
+    else:
+        print('No data provided')
+    test_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_test_1k_transformed.json'    
+    return [train_path,test_path]
 
 
 def get_inputs_and_targets(group, output_type):

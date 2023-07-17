@@ -58,6 +58,7 @@ df_train_real = df_data_real.iloc[:int(n_sam/2),:]
 print(df_train_real.shape)
 df_test_real =  df_data_real.iloc[int(n_sam/2):,:]
 print(df_test_real.shape)
+
 ###########################
 # Save real df to json
 ########################### 
@@ -75,23 +76,6 @@ print(df_test_real.shape)
 # with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
 #     json.dump(to_dict2, json_file, indent=3)
     
-###########################
-# Save real image df
-########################### 
-
-# for idx in range(int(n_sam/2)):
-#     real_image = (cv2.imread(df_data_real['frame'][idx])).astype(np.uint8)
-#     save_path = f'/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/filltered_real_data/train/{idx}.jpg'  # Specify the path where you want to save the image
-#     cv2.imwrite(save_path, real_image)
-
-# for idx in range(int(n_sam/2)):
-#     real_image = (cv2.imread(df_data_real['frame'][idx+(int(n_sam/2))])).astype(np.uint8)
-#     save_path = f'/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/filltered_real_data/test/{idx}.jpg'  # Specify the path where you want to save the image
-#     cv2.imwrite(save_path, real_image)
-    
-###########################
-# Show 1 example image
-########################### 
 
 real_image = (cv2.imread(df_data_real['frame'][20])).astype(np.uint8)
 cv2.imshow('real', real_image)

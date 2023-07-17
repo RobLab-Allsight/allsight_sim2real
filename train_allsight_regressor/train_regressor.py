@@ -42,8 +42,9 @@ class Trainer(object):
 
         leds = params['leds']
         indenter = ['sphere3', 'sphere4', 'sphere5', 'cube', 'rect', 'ellipse']
+        data_type = params['data_type']
 
-        buffer_paths_to_train = get_buffer_paths_sim(leds, indenter)
+        buffer_paths_to_train = get_buffer_paths_sim(leds, indenter, data_type)
 
         #####################
         ## SET AGENT PARAMS
@@ -467,6 +468,8 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--epoch', '-ep', type=int, default=20)
+    
+    parser.add_argument('--data_type', '-dt', type=str, default='real') # real, sim, gan, gan_test
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
@@ -506,7 +509,7 @@ def main():
     ##################################
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'train_history/{}/'.format(params['leds']))
+                             'train_history/{}/'.format(params['data_type']))
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
