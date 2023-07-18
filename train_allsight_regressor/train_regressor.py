@@ -115,6 +115,7 @@ class Trainer(object):
         for idx, p in enumerate(paths):
             if idx == 0:
                 df_data_train = pd.read_json(p).transpose()
+                df_data_train['pose_transformed'] = df_data_train['pose'] 
             else:
                 df_data_test = pd.read_json(p).transpose()    
 
@@ -469,7 +470,7 @@ def main():
 
     parser.add_argument('--epoch', '-ep', type=int, default=20)
     
-    parser.add_argument('--data_type', '-dt', type=str, default='real') # real, sim, gan, gan_test
+    parser.add_argument('--data_type', '-dt', type=str, default='sim') # real, sim, gan, gan_test
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)

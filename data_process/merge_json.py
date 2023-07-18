@@ -17,46 +17,46 @@ random.seed(42)
 
 pc_name = os.getlogin()
 leds = 'rrrgggbbb'
-gel = 'markers' #clear / markers
-indenter = ['20', '30', '40']
-data_name_1 = 'real_train_1k_marker'
-data_name_2 = 'real_test_1k_marker'
-real_paths = [f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
+gel = 'clear' #clear / markers
+indenter = ['sphere3', 'sphere4', 'sphere5']
+data_name_1 = 'sim_train_1k'
+data_name_2 = 'sim_test_1k'
+real_paths = [f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_sim_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
 JSON_FILE_1 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_1}.json"
 JSON_FILE_2 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_2}.json"
 
-n_sam = 2000   
+n_sam = 1900   
 ###########################
 # Concat
 ###########################
 
-buffer_real_paths = []
+buffer_sim_paths = []
 for p in real_paths:
-    buffer_real_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
-buffer_real_paths = [p for p in buffer_real_paths if ('transformed_annotated' in p)]
+    buffer_sim_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
+# buffer_sim_paths = [p for p in buffer_sim_paths if ('transformed_annotated' in p)]
 
 
-for idx, p in enumerate(buffer_real_paths):
+for idx, p in enumerate(buffer_sim_paths):
     if idx == 0:
-        df_data_real = pd.read_json(p).transpose()
+        df_data_sim = pd.read_json(p).transpose()
     else:
-        df_data_real = pd.concat([df_data_real, pd.read_json(p).transpose()], axis=0)
+        df_data_sim = pd.concat([df_data_sim, pd.read_json(p).transpose()], axis=0)
+        
         
 ###########################
 # Filter and sample
 ###########################        
-   
-df_data_real = df_data_real[df_data_real.time > 3.0]  # only over touching samples!
-df_data_real = df_data_real.sample(n=n_sam)
 
-old_path = "/home/osher/catkin_ws/src/allsight/dataset/"
-new_path = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_dataset/"
+# df_data_sim = df_data_sim.sample(n=n_sam)
+print(df_data_sim.shape)
+old_path = "allsight_sim_dataset/"
+new_path = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_sim_dataset/"
 
-df_data_real['frame'] = df_data_real['frame'].str.replace(old_path, new_path)
-
-df_train_real = df_data_real.iloc[:int(n_sam/2),:]
+df_data_sim['frame'] = df_data_sim['frame'].str.replace(old_path, new_path)
+df_data_sim['frame'] = df_data_sim['frame'].str.replace(":", "_")
+df_train_real = df_data_sim.iloc[:int(n_sam/2),:]
 print(df_train_real.shape)
-df_test_real =  df_data_real.iloc[int(n_sam/2):,:]
+df_test_real =  df_data_sim.iloc[int(n_sam/2):,:]
 print(df_test_real.shape)
 
 ###########################
@@ -76,7 +76,3 @@ for index, row in list(df_test_real.iterrows()):
 with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
     json.dump(to_dict2, json_file, indent=3)
     
-
-real_image = (cv2.imread(df_data_real['frame'][20])).astype(np.uint8)
-cv2.imshow('real', real_image)
-cv2.waitKey(0)
