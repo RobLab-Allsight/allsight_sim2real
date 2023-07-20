@@ -115,7 +115,6 @@ class Trainer(object):
         for idx, p in enumerate(paths):
             if idx == 0:
                 df_data_train = pd.read_json(p).transpose()
-                df_data_train['pose_transformed'] = df_data_train['pose'] 
             else:
                 df_data_test = pd.read_json(p).transpose()    
 

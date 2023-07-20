@@ -25,7 +25,7 @@ real_paths = [f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2
 JSON_FILE_1 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_1}.json"
 JSON_FILE_2 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_2}.json"
 
-n_sam = 1900   
+n_sam = 2000   
 ###########################
 # Concat
 ###########################
@@ -47,7 +47,7 @@ for idx, p in enumerate(buffer_sim_paths):
 # Filter and sample
 ###########################        
 
-# df_data_sim = df_data_sim.sample(n=n_sam)
+df_data_sim = df_data_sim.sample(n=n_sam)
 print(df_data_sim.shape)
 old_path = "allsight_sim_dataset/"
 new_path = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_sim_dataset/"
