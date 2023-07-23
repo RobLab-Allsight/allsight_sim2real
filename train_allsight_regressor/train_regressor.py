@@ -478,7 +478,7 @@ def main():
     parser.add_argument('--leds', '-ld', type=str, default='rrrgggbbb')
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
-    parser.add_argument('--aug', '-aug', default=True)
+    parser.add_argument('--aug', '-aug', default=False)
 
     parser.add_argument('--output', '-op', type=str, default='pose')
     parser.add_argument('--scheduler', '-sch', type=str, default='none')
