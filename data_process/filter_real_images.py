@@ -17,15 +17,15 @@ random.seed(42)
 
 pc_name = os.getlogin()
 leds = 'rrrgggbbb'
-gel = 'markers' #clear / markers
-indenter = ['20', '30', '40']
-data_name_1 = 'real_train_1k_marker'
-data_name_2 = 'real_test_1k_marker'
+gel = 'clear' #clear / markers
+indenter = ['20'] # id 3 only 20 (3mm radius)
+data_name_1 = 'real_train_1k--'
+data_name_2 = 'real_test_1k--'
 real_paths = [f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
 JSON_FILE_1 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_1}.json"
 JSON_FILE_2 = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_2}.json"
 
-n_sam = 2000   
+n_sam = 10000   
 ###########################
 # Concat
 ###########################
@@ -54,9 +54,9 @@ new_path = f"/home/{pc_name}/Documents/repose/Allsight_sim2real/allsight_sim2rea
 
 df_data_real['frame'] = df_data_real['frame'].str.replace(old_path, new_path)
 
-df_train_real = df_data_real.iloc[:int(n_sam/2),:]
+df_train_real = df_data_real.iloc[:int(n_sam*0.8),:]
 print(df_train_real.shape)
-df_test_real =  df_data_real.iloc[int(n_sam/2):,:]
+df_test_real =  df_data_real.iloc[int(n_sam*0.8):,:]
 print(df_test_real.shape)
 
 ###########################
@@ -76,7 +76,6 @@ for index, row in list(df_test_real.iterrows()):
 with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
     json.dump(to_dict2, json_file, indent=3)
     
-
 real_image = (cv2.imread(df_data_real['frame'][20])).astype(np.uint8)
 cv2.imshow('real', real_image)
 cv2.waitKey(0)
