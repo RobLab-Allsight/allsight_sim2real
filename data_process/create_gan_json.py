@@ -12,11 +12,12 @@ from PIL import Image
 import re
 
 # update paths:
-json_p = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/sim_train_1k_transformed.json' ##
-images_folder_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/results/allsight_cg_try_1/test_latest/images/'
-copy_to_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/cgan_data/test1/'
+epoch_model = 150 # latest / epoch num
+json_p = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/sim_train_1_transformed.json' ##
+images_folder_path = f'/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/results/allsight_1/test_{epoch_model}/images/'
+copy_to_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/cgan_data/test2/'
 name = 'cgan'
-data_name_1 = 'cgan_test_1k'
+data_name_1 = 'cgan_test_2'
 JSON_FILE = f"/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/{data_name_1}.json"
 df_data = pd.read_json(json_p).transpose()
 df_data['old_frame'] = df_data['frame']
@@ -58,8 +59,8 @@ sorted_image_paths = sorted(new_images_paths, key=get_image_number)
 # Save real image df
 ########################### 
 
-for idx in range(len(new_images_paths)):
-    real_image = (cv2.imread(new_images_paths[idx])).astype(np.uint8)
+for idx in range(len(sorted_image_paths)):
+    real_image = (cv2.imread(sorted_image_paths[idx])).astype(np.uint8)
     save_path = copy_to_path + name + f'{idx}.jpg'  # Specify the path where you want to save the image
     cv2.imwrite(save_path, real_image)
     df_data['frame'][idx] = save_path

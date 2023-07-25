@@ -102,7 +102,7 @@ def get_buffer_paths_sim(leds, indenter, data_type):
     elif data_type == 'sim':
         train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/sim_train_1_transformed.json'
     elif data_type == 'gan':
-        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/gan_train_1k_transformed.json'
+        train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/cgan_test_2_transformed.json'
     elif data_type == 'gan_test':
         train_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/gan_test_1k_transformed.json'
     else:
@@ -261,8 +261,9 @@ class TactileSimDataset(torch.utils.data.Dataset):
         self.w, self.h = 480, 480
 
         self.X = [df.iloc[idx].frame for idx in range(self.df.shape[0])]
-        self.X_ref = ['/'.join(df.iloc[0].frame.split('/')[:-1]) + '/ref_frame.jpg' for idx in range(self.df.shape[0])]
-
+        # self.X_ref = ['/'.join(df.iloc[0].frame.split('/')[:-1]) + '/ref_frame.jpg' for idx in range(self.df.shape[0])]
+        self.X_ref = self.X
+        
         if self.apply_mask:
             self.mask = circle_mask((self.w, self.h))
 
@@ -302,6 +303,7 @@ class TactileSimDataset(torch.utils.data.Dataset):
             ref_img = (ref_img * self.mask).astype(np.uint8)
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # ref_img = img
         ref_img = cv2.cvtColor(ref_img, cv2.COLOR_BGR2RGB)
 
         if self.transform:

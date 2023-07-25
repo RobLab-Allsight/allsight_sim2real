@@ -127,9 +127,9 @@ class Trainer(object):
         self.train_transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((self.params['image_size'], self.params['image_size'])),
-            transforms.RandomChoice([
-                transforms.ColorJitter(brightness=0.05, contrast=0.05, saturation=0.05, hue=0.05),
-            ]),
+            # transforms.RandomChoice([
+            #     transforms.ColorJitter(brightness=0.05, contrast=0.05, saturation=0.05, hue=0.05),
+            # ]),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406],
                                  [0.229, 0.224, 0.225])
@@ -469,7 +469,7 @@ def main():
 
     parser.add_argument('--epoch', '-ep', type=int, default=20)
     
-    parser.add_argument('--data_type', '-dt', type=str, default='sim') # real, sim, gan, gan_test
+    parser.add_argument('--data_type', '-dt', type=str, default='gan') # real, sim, gan, gan_test
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
