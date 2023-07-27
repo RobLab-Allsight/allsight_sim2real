@@ -1,38 +1,36 @@
-###########################
-# Import
-###########################
 import numpy as np
 import pandas as pd
-import os
-from glob import glob
-import matplotlib.pyplot as plt
 import random
 import cv2
+import argparse
 
-random.seed(42)
-
-# update paths:
-json_p = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/json_data/real_train_8k_transformed.json' ##
-trans_folder_path = '/home/roblab20/Documents/repose/Allsight_sim2real/allsight_sim2real/datasets/data_Allsight/'
-data_type = 'trainA/' # trainA, trainB, testA, testB.
-
-
-df_data = pd.read_json(json_p).transpose()
-
-###########################
-# Save real image df
-########################### 
-df_data = df_data.sample(n=1391)
-for idx in range(len(df_data)):
-    real_image = (cv2.imread(df_data['frame'][idx])).astype(np.uint8)
-    save_path = trans_folder_path + data_type+ f'{idx}.jpg'  # Specify the path where you want to save the image
-    cv2.imwrite(save_path, real_image)
+  
+def main(args):
+    random.seed(42)
     
-###########################
-# Show 1 example image
-########################### 
+    from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_transformed.json'
+    trans_folder_path = './datasets/data_Allsight/'
+        
+    df_data = pd.read_json(from_json_p).transpose()
+    
+    if args.samples != 0:
+        df_data = df_data.iloc[:args.samples,:]
+        # df_data = df_data.sample(n=args.samples)
+    
+    for idx in range(len(df_data)):
+        real_image = (cv2.imread(df_data['frame'][idx])).astype(np.uint8)
+        save_path1 = trans_folder_path + 'train' +args.folder_type + f'/{idx}.jpg'  # Specify the path where you want to save the image
+        save_path2 = trans_folder_path + 'test' +args.folder_type + f'/{idx}.jpg'
+        cv2.imwrite(save_path1, real_image)
+        cv2.imwrite(save_path2, real_image)
 
 
-# real_image = (cv2.imread(df_data['frame'][20])).astype(np.uint8)
-# cv2.imshow('real', real_image)
-# cv2.waitKey(0)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Process images and related JSON data.')
+    parser.add_argument('--data_type', type=str, default='real', help='real, sim')
+    parser.add_argument('--data_num', type=int, default= 1, help='from JSON path')
+    parser.add_argument('--folder_type', type=str, default='A', help='A, B')
+    parser.add_argument('--samples', type=int, default=0, help='Number of samples, if 0 -> not sample take all')
+    args = parser.parse_args()
+
+    main(args)

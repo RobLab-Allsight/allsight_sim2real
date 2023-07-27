@@ -26,12 +26,13 @@ from geometry import convert_quat_wxyz_to_xyzw, convert_quat_xyzw_to_wxyz
 from transformations import quaternion_matrix
 from scipy import spatial
 from tqdm import tqdm
-
+import random
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # cuda or cpu
 np.set_printoptions(suppress=True, linewidth=np.inf)  # to widen the printed array
 
 pc_name = os.getlogin()
 
+random.seed(42)
 
 class Trainer(object):
 
@@ -42,9 +43,8 @@ class Trainer(object):
 
         leds = params['leds']
         indenter = ['sphere3', 'sphere4', 'sphere5', 'cube', 'rect', 'ellipse']
-        data_type = params['data_type']
-
-        buffer_paths_to_train = get_buffer_paths_sim(leds, indenter, data_type)
+        
+        buffer_paths_to_train = get_buffer_paths_sim(leds, indenter, params)
 
         #####################
         ## SET AGENT PARAMS
@@ -469,7 +469,11 @@ def main():
 
     parser.add_argument('--epoch', '-ep', type=int, default=20)
     
-    parser.add_argument('--data_type', '-dt', type=str, default='gan') # real, sim, gan, gan_test
+    parser.add_argument('--train_type', '-dt', type=str, default='gan') # real, sim, gan
+    parser.add_argument('--sim_data_num', type=int, default= 2, help='sim JSON path')
+    parser.add_argument('--real_data_num', type=int, default= 1, help='real JSON path')
+    parser.add_argument('--cgan_num', default= 2, type=str)
+    parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
@@ -509,7 +513,7 @@ def main():
     ##################################
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'train_history/{}/'.format(params['data_type']))
+                             'train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.cgan_num}',params['train_type']))
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
