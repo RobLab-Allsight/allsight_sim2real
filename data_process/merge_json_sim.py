@@ -35,7 +35,6 @@ for p in real_paths:
     buffer_sim_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
 # buffer_sim_paths = [p for p in buffer_sim_paths if ('transformed_annotated' in p)]
 
-
 for idx, p in enumerate(buffer_sim_paths):
     if idx == 0:
         df_data_sim = pd.read_json(p).transpose()
@@ -75,4 +74,7 @@ with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
 #     to_dict2[index] = dict(row)
 # with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
 #     json.dump(to_dict2, json_file, indent=3)
-    
+
+
+
+###########################

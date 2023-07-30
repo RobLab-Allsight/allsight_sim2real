@@ -18,7 +18,7 @@ random.seed(42)
 pc_name = os.getlogin()
 leds = 'rrrgggbbb'
 gel = 'clear' #clear / markers
-indenter = ['20'] # id 3 only 20 (3mm radius)
+indenter = ['sphere3'] # id 3 only 20 (3mm radius)
 data_name_1 = 'real_train_3'
 data_name_2 = 'real_test_3'
 real_paths = [f"./datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
