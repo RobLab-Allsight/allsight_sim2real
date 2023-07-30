@@ -19,8 +19,8 @@ pc_name = os.getlogin()
 leds = 'rrrgggbbb'
 gel = 'clear' #clear / markers
 indenter = ['20'] # id 3 only 20 (3mm radius)
-data_name_1 = 'real_train_3___'
-data_name_2 = 'real_test_3___'
+data_name_1 = 'real_train_3'
+data_name_2 = 'real_test_3'
 real_paths = [f"./datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
 JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
 JSON_FILE_2 = f"./datasets/data_Allsight/json_data/{data_name_2}.json"
@@ -45,7 +45,7 @@ for idx, p in enumerate(buffer_real_paths):
 ###########################
 # Filter and sample
 ###########################        
-   
+
 df_data_real = df_data_real[df_data_real.time > 3.0]  # only over touching samples!
 df_data_real = df_data_real.sample(n=n_sam)
 
@@ -69,7 +69,7 @@ for index, row in list(df_train_real.iterrows()):
     to_dict[index] = dict(row)
 with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
     json.dump(to_dict, json_file, indent=3)
-    
+
 to_dict2 = {}
 for index, row in list(df_test_real.iterrows()):
     to_dict2[index] = dict(row)

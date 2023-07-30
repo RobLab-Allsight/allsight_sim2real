@@ -10,7 +10,7 @@ def main(args):
     
     from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_transformed.json'
     trans_folder_path = './datasets/data_Allsight/'
-        
+
     df_data = pd.read_json(from_json_p).transpose()
     
     if args.samples != 0:
@@ -28,9 +28,9 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--data_type', type=str, default='real', help='real, sim')
-    parser.add_argument('--data_num', type=int, default= 1, help='from JSON path')
+    parser.add_argument('--data_num', type=int, default=3, help='from JSON path')
     parser.add_argument('--folder_type', type=str, default='A', help='A, B')
-    parser.add_argument('--samples', type=int, default=0, help='Number of samples, if 0 -> not sample take all')
+    parser.add_argument('--samples', type=int, default=1000, help='Number of samples, if 0 -> not sample take all')
     args = parser.parse_args()
 
     main(args)

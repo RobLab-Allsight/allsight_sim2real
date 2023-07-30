@@ -2,7 +2,7 @@ Filter real data: (1 time)
     python3 data_process/filter_real_images.py 
 
 Merge sim data: (each time when we change the sim data)
-    python3 data_process/filter_real_images.py 
+    python3 data_process/merge_json_sim.py 
 
 Transfer images to gan folders: (Make sure the folders are empty)
     python3 data_process/transfer_images.py --data_type real --data_num 3 --folder_type A --samples 7000
