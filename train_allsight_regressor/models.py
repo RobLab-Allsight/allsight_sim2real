@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import timm
-from datasets import output_map
+from train_allsight_regressor.datasets import output_map ##
 # import resnets as srn
 import os
 

@@ -4,6 +4,8 @@ from torch.nn import init
 import functools
 from torch.optim import lr_scheduler
 
+from train_allsight_regressor.models import PreTrainedModel, PreTrainedModelWithRef
+from train_allsight_regressor.datasets import TactileSimDataset, output_map, get_buffer_paths_sim
 
 ###############################################################################
 # Helper Functions
@@ -116,6 +118,22 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     init_weights(net, init_type, init_gain=init_gain)
     return net
 
+def init_reg(net, gpu_ids=[]):
+    """Initialize a network: 1. register CPU/GPU device (with multi-GPU support); 2. initialize the network weights
+    Parameters:
+        net (network)      -- the network to be initialized
+        init_type (str)    -- the name of an initialization method: normal | xavier | kaiming | orthogonal
+        gain (float)       -- scaling factor for normal, xavier and orthogonal.
+        gpu_ids (int list) -- which GPUs the network runs on: e.g., 0,1,2
+
+    Return an initialized network.
+    """
+    if len(gpu_ids) > 0:
+        assert(torch.cuda.is_available())
+        net.to(gpu_ids[0])
+        net = torch.nn.DataParallel(net, gpu_ids)  # multi-GPUs
+    net.eval()
+    return net
 
 def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[]):
     """Create a generator
@@ -203,6 +221,30 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
     return init_net(net, init_type, init_gain, gpu_ids)
 
+
+def define_regressor(reg_path, gpu_ids=[]):
+    """
+    Define and initialize a regressor model.
+
+    This function defines and initializes a regressor model using a pre-trained ResNet18 model
+    and loads the model's state from the specified path.
+
+    Parameters:
+        reg_path (str): The path to the saved state of the regressor model.
+        gpu_ids (List[int], optional): List of GPU device IDs to use. Defaults to an empty list.
+
+    Returns:
+        torch.nn.Module: The initialized regressor model.
+
+    Example:
+        reg_model = define_regressor('/path/to/regressor_state.pth', gpu_ids=[0, 1])
+    """
+    net = None
+
+    net = PreTrainedModel('resnet18', output_map['pose'])
+    net.load_state_dict(torch.load(reg_path))
+
+    return init_reg(net, gpu_ids)
 
 ##############################################################################
 # Classes
