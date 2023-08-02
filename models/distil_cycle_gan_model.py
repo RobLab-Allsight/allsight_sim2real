@@ -40,7 +40,6 @@ class DistilCycleGANModel(BaseModel):
         if is_train:
             parser.add_argument('--lambda_A', type=float, default=10.0, help='weight for cycle loss (A -> B -> A)')
             parser.add_argument('--lambda_B', type=float, default=10.0, help='weight for cycle loss (B -> A -> B)')
-            parser.add_argument('--lambda_C', type=float, default=5.0, help='weight for distil loss')
             parser.add_argument('--lambda_identity', type=float, default=0.5, help='use identity mapping. Setting lambda_identity other than 0 has an effect of scaling the weight of the identity mapping loss. For example, if the weight of the identity loss should be 10 times smaller than the weight of the reconstruction loss, please set lambda_identity = 0.1')
 
         return parser
@@ -102,6 +101,10 @@ class DistilCycleGANModel(BaseModel):
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
+            
+
+        
+
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -169,7 +172,6 @@ class DistilCycleGANModel(BaseModel):
         lambda_idt = self.opt.lambda_identity
         lambda_A = self.opt.lambda_A
         lambda_B = self.opt.lambda_B
-        lambda_C = self.opt.lambda_C
         
         # Identity loss
         if lambda_idt > 0:
@@ -192,13 +194,7 @@ class DistilCycleGANModel(BaseModel):
         # Backward cycle loss || G_A(G_B(B)) - B||
         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         # Distil loss
-        self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * lambda_C
-        self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * lambda_C
-        self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * lambda_C
-        self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * lambda_C
-        self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * lambda_C
-        self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * lambda_C
-        self.loss_comb_dis = self.loss_dis_Ars + self.loss_dis_Asr + self.loss_dis_Arr + self.loss_dis_Bsr + self.loss_dis_Brs + self.loss_dis_Bss 
+        self.loss_comb_dis = self.get_distil_loss_combined() if self.isDistil else 0
         # combined loss and calculate gradients
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_comb_dis
         self.loss_G.backward()
@@ -218,3 +214,67 @@ class DistilCycleGANModel(BaseModel):
         self.backward_D_A()      # calculate gradients for D_A
         self.backward_D_B()      # calculate graidents for D_B
         self.optimizer_D.step()  # update D_A and D_B's weights
+
+    def update_distil(self):
+        """
+        Update the value of lambda_C (a distillation hyperparameter) based on the current epoch.
+
+        """
+        
+        # Start distillation if the current epoch matches the specified distillation epoch and distillation is enabled.
+        if self.epoch_counter == self.opt.epoch_distil and not self.opt.no_distil:
+            self.start_distil()
+        else:
+            self.epoch_counter += 1
+
+        # Update lambda_C if distillation is enabled, based on the distillation policy and distil_epoch_count.
+        if self.isDistil:
+            self.lambda_C = self.distil_policy(self.distil_epoch_count)
+            self.distil_epoch_count += 1
+
+
+    def get_distil_loss_combined(self):
+        """
+        Compute and return the combined distillation loss.
+
+        Returns:
+            float: The combined distillation loss computed by summing six different distillation losses.
+        """
+        self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * self.lambda_C
+        self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
+        self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
+        self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_C
+        self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+        self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+        
+        return self.loss_dis_Ars + self.loss_dis_Asr + self.loss_dis_Arr + self.loss_dis_Bsr + self.loss_dis_Brs + self.loss_dis_Bss 
+
+    def distil_policy_rule(self, policy):
+        """
+        Define the distillation policy based on the given 'policy' parameter.
+
+        Parameters:
+            policy (str): The type of distillation policy. It can be either 'const' for a constant policy or 'linear' for a linear policy.
+
+        Returns:
+            function: The chosen distillation policy function that takes the current epoch as input and returns the value of lambda_C.
+        """
+
+        total_epochs = self.opt.n_epochs + self.opt.n_epochs_decay
+        init_epoch_distil = self.opt.epoch_distil
+        
+        if policy == 'const':
+            # Constant distillation policy that returns the initial value of lambda_C for all epochs.
+            def const_rule(epoch):
+                return self.init_lambda_C
+            rule = const_rule
+            
+        elif policy == 'linear':
+            # Linear distillation policy that linearly changes the value of lambda_C over epochs.
+            def linear_rule(epoch):
+                l_C = (10 - self.init_lambda_C) * (epoch - init_epoch_distil) / (total_epochs - init_epoch_distil) + self.init_lambda_C
+                return l_C
+            rule = linear_rule
+        
+        return rule
+

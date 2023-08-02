@@ -42,6 +42,12 @@ class BaseModel(ABC):
         self.optimizers = []
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
+        
+        # epoch counter
+        self.epoch_counter = self.opt.epoch_counter
+                # using distil loss param
+        self.isDistil = False
+        self.init_lambda_C = self.opt.lambda_C
 
     @staticmethod
     def modify_commandline_options(parser, is_train):
@@ -74,7 +80,25 @@ class BaseModel(ABC):
     def optimize_parameters(self):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
         pass
+    
 
+    def start_distil(self):
+        """
+        Start the distillation process by setting the 'isDistil' flag to True and initializing the distillation policy.
+        """
+        
+        self.isDistil = True     
+        self.distil_policy = self.distil_policy_rule(policy=self.opt.distil_policy)
+        self.distil_epoch_count = 0
+
+    @abstractmethod
+    def update_distil(self):
+        pass
+    
+    @abstractmethod
+    def distil_policy_rule(self, policy):
+        pass
+    
     def setup(self, opt):
         """Load and print networks; create schedulers
 

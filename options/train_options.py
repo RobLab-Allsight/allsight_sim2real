@@ -35,6 +35,11 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--pool_size', type=int, default=50, help='the size of image buffer that stores previously generated images')
         parser.add_argument('--lr_policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
         parser.add_argument('--lr_decay_iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
+        # distil training parameters
+        parser.add_argument('--no_distil', action='store_true', help='do not use the distil loss = regular cycle-gan')
+        parser.add_argument('--epoch_distil',type=int,default=100, help='number of epoch wich the distil loss starts')
+        parser.add_argument('--distil_policy',type=str,default='const',help='distil weight policy')
+        parser.add_argument('--lambda_C', type=float, default=0.5, help='inital weight for distil loss')
 
         self.isTrain = True
         return parser
