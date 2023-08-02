@@ -47,27 +47,29 @@ def main(args):
 
     sorted_image_paths = sorted(new_images_paths, key=get_image_number)
 
-    # Save real image df
-    for idx, img_path in enumerate(sorted_image_paths):
-        real_image = (cv2.imread(img_path)).astype(np.uint8)
-        save_path = os.path.join(copy_to_path, f'{args.name}{idx}.jpg')
-        cv2.imwrite(save_path, real_image)
-        df_data['frame'][idx] = save_path
+    if args.save:
+        # Save real image df
+        for idx, img_path in enumerate(sorted_image_paths):
+            real_image = (cv2.imread(img_path)).astype(np.uint8)
+            save_path = os.path.join(copy_to_path, f'{args.name}{idx}.jpg')
+            cv2.imwrite(save_path, real_image)
+            df_data['frame'][idx] = save_path
 
-    # Save real df to json
-    to_dict = {}
-    for index, row in list(df_data.iterrows()):
-        to_dict[index] = dict(row)
-    with open(f'{JSON_FILE}_transformed.json', 'w') as json_file:
-        json.dump(to_dict, json_file, indent=3)
+        # Save real df to json
+        to_dict = {}
+        for index, row in list(df_data.iterrows()):
+            to_dict[index] = dict(row)
+        with open(f'{JSON_FILE}_transformed.json', 'w') as json_file:
+            json.dump(to_dict, json_file, indent=3)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 2, help='sim JSON path')
-    parser.add_argument('--cgan_num', default= 2, type=str)
+    parser.add_argument('--cgan_num', type=str, default= 2)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
     parser.add_argument('--name', type=str, default='cgan', help='Name of the image')
+    parser.add_argument('--save', default=False)
     args = parser.parse_args()
 
     main(args)
