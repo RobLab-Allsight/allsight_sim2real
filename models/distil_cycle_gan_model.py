@@ -193,10 +193,13 @@ class DistilCycleGANModel(BaseModel):
         self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
         # Backward cycle loss || G_A(G_B(B)) - B||
         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
-        # Distil loss
-        self.loss_comb_dis = self.get_distil_loss_combined() if self.isDistil else 0
-        # combined loss and calculate gradients
-        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B + self.loss_comb_dis
+        # combined loss and calculate gradients 
+        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B
+        # calculate Distil loss if active
+        if self.isDistil: 
+            self.loss_comb_dis = self.get_distil_loss_combined()
+            self.loss_G +=  self.loss_comb_dis
+        
         self.loss_G.backward()
 
     def optimize_parameters(self):
@@ -224,12 +227,14 @@ class DistilCycleGANModel(BaseModel):
         # Start distillation if the current epoch matches the specified distillation epoch and distillation is enabled.
         if self.epoch_counter == self.opt.epoch_distil and not self.opt.no_distil:
             self.start_distil()
+            print("[INFO]  Distil loss activated")
         else:
             self.epoch_counter += 1
 
         # Update lambda_C if distillation is enabled, based on the distillation policy and distil_epoch_count.
         if self.isDistil:
             self.lambda_C = self.distil_policy(self.distil_epoch_count)
+            print(f"[INFO]  Distil loss lambda_C set to: {self.lambda_C}")
             self.distil_epoch_count += 1
 
 
