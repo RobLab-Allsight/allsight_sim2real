@@ -470,6 +470,7 @@ def main():
     parser.add_argument('--epoch', '-ep', type=int, default=30)
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
+    parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
     parser.add_argument('--sim_data_num', type=int, default= 3, help='sim JSON path')
     parser.add_argument('--real_data_num', type=int, default= 3, help='real JSON path')
     parser.add_argument('--cgan_num', default= 2, type=str)
