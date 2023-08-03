@@ -225,7 +225,7 @@ class DistilCycleGANModel(BaseModel):
         """
         
         # Start distillation if the current epoch matches the specified distillation epoch and distillation is enabled.
-        if self.epoch_counter == self.opt.epoch_distil and not self.opt.no_distil:
+        if self.epoch_counter == self.opt.epoch_distil:
             self.start_distil()
             print("[INFO]  Distil loss activated")
         else:

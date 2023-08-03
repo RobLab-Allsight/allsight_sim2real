@@ -91,11 +91,11 @@ class BaseModel(ABC):
         self.distil_policy = self.distil_policy_rule(policy=self.opt.distil_policy)
         self.distil_epoch_count = 0
 
-    @abstractmethod
+    # @abstractmethod
     def update_distil(self):
         pass
     
-    @abstractmethod
+    # @abstractmethod
     def distil_policy_rule(self, policy):
         pass
     
