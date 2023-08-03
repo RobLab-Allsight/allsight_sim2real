@@ -1,10 +1,10 @@
 import os
 import torch
 from torch.utils.data import DataLoader
-from misc import normalize, unnormalize, normalize_max_min, unnormalize_max_min # train_allsight_regressor.
+from train_allsight_regressor.misc import normalize, unnormalize, normalize_max_min, unnormalize_max_min # 
 import numpy as np
 import cv2
-from img_utils import circle_mask, _diff, _structure #train_allsight_regressor
+from train_allsight_regressor.img_utils import circle_mask, _diff, _structure #
 import pandas as pd
 import random
 from glob import glob

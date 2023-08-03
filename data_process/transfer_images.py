@@ -8,7 +8,7 @@ import argparse
 def main(args):
     random.seed(42)
     
-    from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_transformed.json'
+    from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_{args.data_kind}.json'
     trans_folder_path = './datasets/data_Allsight/'
 
     df_data = pd.read_json(from_json_p).transpose()
@@ -27,9 +27,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--data_type', type=str, default='real', help='real, sim')
+    parser.add_argument('--data_type', type=str, default='sim', help='real, sim')
+    parser.add_argument('--data_kind', type=str, default='aligned', help='transformed, aligned')
     parser.add_argument('--data_num', type=int, default=5, help='from JSON path')
-    parser.add_argument('--folder_type', type=str, default='A', help='A, B')
+    parser.add_argument('--folder_type', type=str, default='B', help='A, B')
     parser.add_argument('--samples', type=int, default=950, help='Number of samples, if 0 -> not sample take all')
     args = parser.parse_args()
 

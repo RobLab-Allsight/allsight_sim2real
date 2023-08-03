@@ -11,18 +11,18 @@ from torchvision import transforms
 from torchvision.utils import make_grid
 import sys
 
-from misc import normalize, unnormalize, normalize_max_min, unnormalize_max_min, save_df_as_json
-from vis_utils import Arrow3D
+from train_allsight_regressor.misc import normalize, unnormalize, normalize_max_min, unnormalize_max_min, save_df_as_json
+from train_allsight_regressor.vis_utils import Arrow3D
 import numpy as np
 import pandas as pd
 import cv2
 from sklearn.model_selection import train_test_split
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR  # Learning rate schedulers
-from models import PreTrainedModel, PreTrainedModelWithRef
-from vis_utils import data_for_cylinder_along_z, data_for_sphere_along_z, set_axes_equal
-from datasets import TactileSimDataset, output_map, get_buffer_paths_sim
-from surface import create_finger_geometry
-from geometry import convert_quat_wxyz_to_xyzw, convert_quat_xyzw_to_wxyz
+from train_allsight_regressor.models import PreTrainedModel, PreTrainedModelWithRef
+from train_allsight_regressor.vis_utils import data_for_cylinder_along_z, data_for_sphere_along_z, set_axes_equal
+from train_allsight_regressor.datasets import TactileSimDataset, output_map, get_buffer_paths_sim
+from train_allsight_regressor.surface import create_finger_geometry
+from train_allsight_regressor.geometry import convert_quat_wxyz_to_xyzw, convert_quat_xyzw_to_wxyz
 from transformations import quaternion_matrix
 from scipy import spatial
 from tqdm import tqdm
@@ -467,7 +467,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--epoch', '-ep', type=int, default=20)
+    parser.add_argument('--epoch', '-ep', type=int, default=30)
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
     parser.add_argument('--sim_data_num', type=int, default= 3, help='sim JSON path')
@@ -513,7 +513,7 @@ def main():
     ##################################
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.cgan_num}',params['train_type']))
+                             'train_allsight_regressor/train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.cgan_num}',params['train_type']))
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)

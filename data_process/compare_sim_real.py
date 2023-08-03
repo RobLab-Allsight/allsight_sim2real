@@ -16,16 +16,16 @@ leds = 'rrrgggbbb'
 gel = 'clear'
 start_sample_time = 2
 indenter = ['sphere3']
-save = True
+save = False
 sim_data_num = 4
-real_data_num = 4
-name = f'sim_train_{sim_data_num}'
+real_data_num = 5
+name = f'sim_train_5_'
 save_name = f'./datasets/data_Allsight/json_data/{name}'
 
 
 # paths of the real and sim dataframes
-p_real = f'./datasets/data_Allsight/json_data/sim_train_{sim_data_num}_transformed.json'
-p_sim = f'./datasets/data_Allsight/json_data/real_train_{real_data_num}_transformed.json'
+p_sim = f'./datasets/data_Allsight/json_data/sim_train_{sim_data_num}_transformed.json'
+p_real = f'./datasets/data_Allsight/json_data/real_train_{real_data_num}_transformed.json'
 
 # Load real_paths df
 df_data_real = pd.read_json(p_real).transpose()
@@ -58,16 +58,18 @@ tree = spatial.KDTree(pose_sim,leafsize=300)
 # ind_unique_array = np.array(ind_array)
 def find_next_kni(t, ind_to_keep):
     t +=1
-    d, ind = tree.query(real_xyz,k=t)
-    if t < 800:
+    d, ind = tree.query(real_xyz,k=t, distance_upper_bound=10)
+    if t < 900:
+        if t == 100: 
+            yyyy =1
         if t == 1:
             if ind in ind_to_keep:
                 ind = find_next_kni(t, ind_to_keep) 
         else:
-            if ind[0] in ind_to_keep:
+            if ind[-1] in ind_to_keep:
                 ind = find_next_kni(t, ind_to_keep)
                 if ind == -1: return -1   
-            try: ind = ind[0]
+            try: ind = ind[-1]
             except: ind = ind
         return ind  
     else:
