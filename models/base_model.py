@@ -43,11 +43,12 @@ class BaseModel(ABC):
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
         
-        # epoch counter
-        self.epoch_counter = self.opt.epoch_count
-        # using distil loss param
-        self.isDistil = False
-        self.init_lambda_C = self.opt.lambda_C
+        if opt.model == 'distil_cycle_gan':
+            # epoch counter
+            self.epoch_counter = self.opt.epoch_count
+            # using distil loss param
+            self.isDistil = False
+            self.init_lambda_C = self.opt.lambda_C
 
     @staticmethod
     def modify_commandline_options(parser, is_train):
