@@ -473,6 +473,7 @@ def main():
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
     parser.add_argument('--sim_data_num', type=int, default= 3, help='sim JSON path')
     parser.add_argument('--real_data_num', type=int, default= 3, help='real JSON path')
+    parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
     parser.add_argument('--cgan_num', default= 2, type=str)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 

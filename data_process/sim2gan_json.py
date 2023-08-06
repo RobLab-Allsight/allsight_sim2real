@@ -30,9 +30,9 @@ def main(args):
     random.seed(42)
     
     json_sim_p = f'./datasets/data_Allsight/json_data/sim_train_{args.sim_data_num}_{args.data_kind}.json'
-    json_gan_name = f'cgan_test_{args.cgan_num}_{args.sim_data_num}_{args.cgan_epoch}'
-    images_folder_path = f'./results/allsight_{args.cgan_num}/test_{args.cgan_epoch}/images/'
-    copy_to_path = f'./datasets/data_Allsight/cgan_data/test{args.cgan_num}_{args.cgan_epoch}/'
+    json_gan_name = f'{args.name}_test_{args.cgan_num}_{args.sim_data_num}_{args.cgan_epoch}'
+    images_folder_path = f'./results/allsight_distil_{args.cgan_num}/test_{args.cgan_epoch}/images/'
+    copy_to_path = f'./datasets/data_Allsight/{args.name}_data/test{args.cgan_num}_{args.cgan_epoch}/'
     JSON_FILE = f"./datasets/data_Allsight/json_data/{json_gan_name}"
     
     # Create the directory if it doesn't exist
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_kind', type=str, default='aligned', help='transformed, aligned')
     parser.add_argument('--cgan_num', type=str, default= 2)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
-    parser.add_argument('--name', type=str, default='cgan', help='Name of the image')
+    parser.add_argument('--name', type=str, default='cgan', help='cgan, distil_cgan')
     parser.add_argument('--save', default=False)
     args = parser.parse_args()
 

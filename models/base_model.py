@@ -43,7 +43,7 @@ class BaseModel(ABC):
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
         
-        if opt.model == 'distil_cycle_gan':
+        if self.isTrain: 
             # epoch counter
             self.epoch_counter = self.opt.epoch_count
             # using distil loss param
