@@ -77,8 +77,8 @@ class DistilCycleGANModel(BaseModel):
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
 
         # Load regrssion models
-        self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/real_big.pth', self.gpu_ids)
-        self.real_regressor = networks.define_regressor('./checkpoints/regression_models/sim_big.pth', self.gpu_ids)
+        self.sim_regressor = networks.define_regressor('train_allsight_regressor/train_history/real_3_sim_3_gan_2/real/train_pose_resnet18_single_31-07-2023_15-47-40/model.pth', self.gpu_ids)
+        self.real_regressor = networks.define_regressor('train_allsight_regressor/train_history/real_3_sim_3_gan_2/sim/train_pose_resnet18_single_27-07-2023_17-28-17/model.pth', self.gpu_ids)
 
         if self.isTrain:  # define discriminators
             self.netD_A = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
@@ -277,7 +277,7 @@ class DistilCycleGANModel(BaseModel):
         elif policy == 'linear':
             # Linear distillation policy that linearly changes the value of lambda_C over epochs.
             def linear_rule(epoch):
-                l_C = (100 - self.init_lambda_C) * (epoch - init_epoch_distil) / (total_epochs - init_epoch_distil) + self.init_lambda_C
+                l_C = (10 - self.init_lambda_C) * (epoch - init_epoch_distil) / (total_epochs - init_epoch_distil) + self.init_lambda_C
                 return l_C
             rule = linear_rule
         
