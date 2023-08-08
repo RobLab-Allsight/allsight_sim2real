@@ -228,6 +228,7 @@ class DistilCycleGANModel(BaseModel):
         if self.epoch_counter == self.opt.epoch_distil:
             self.start_distil()
             print("[INFO]  Distil loss activated")
+            self.epoch_counter += 1
         else:
             self.epoch_counter += 1
 
