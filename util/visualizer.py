@@ -237,6 +237,33 @@ class Visualizer():
         if self.use_wandb:
             self.wandb_run.log(losses)
 
+    def plot_current_dis_losses(self, epoch, counter_ratio, losses):
+        """display the current losses on visdom display: dictionary of error labels and values
+
+        Parameters:
+            epoch (int)           -- current epoch
+            counter_ratio (float) -- progress (percentage) in the current epoch, between 0 to 1
+            losses (OrderedDict)  -- training losses stored in the format of (name, float) pairs
+        """
+        if not hasattr(self, 'plot_data_dis'):
+            self.plot_data_dis = {'X': [], 'Y': [], 'legend': list(losses.keys())}
+        self.plot_data_dis['X'].append(epoch + counter_ratio)
+        self.plot_data_dis['Y'].append([losses[k] for k in self.plot_data_dis['legend']])
+        try:
+            self.vis.line(
+                X=np.stack([np.array(self.plot_data_dis['X'])] * len(self.plot_data_dis['legend']), 1),
+                Y=np.array(self.plot_data_dis['Y']),
+                opts={
+                    'title': self.name + ' distil loss over time',
+                    'legend': self.plot_data_dis['legend'],
+                    'xlabel': 'epoch',
+                    'ylabel': 'loss'},
+                win=self.display_id+3)
+        except VisdomExceptionBase:
+            self.create_visdom_connections()
+        if self.use_wandb:
+            self.wandb_run.log(losses)
+
     # losses: same format as |losses| of plot_current_losses
     def print_current_losses(self, epoch, iters, losses, t_comp, t_data):
         """print current losses on console; also save the losses to the disk
@@ -248,7 +275,10 @@ class Visualizer():
             t_comp (float) -- computational time per data point (normalized by batch_size)
             t_data (float) -- data loading time per data point (normalized by batch_size)
         """
-        message = '(epoch: %d, iters: %d, time: %.3f, data: %.3f) ' % (epoch, iters, t_comp, t_data)
+        if epoch == -1:
+            message = '(distil losses): '
+        else:
+            message = '(epoch: %d, iters: %d, time: %.3f, data: %.3f) ' % (epoch, iters, t_comp, t_data)
         for k, v in losses.items():
             message += '%s: %.3f ' % (k, v)
 

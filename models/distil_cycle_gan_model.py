@@ -3,6 +3,7 @@ import itertools
 from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
+import re
 
 
 class DistilCycleGANModel(BaseModel):
@@ -52,7 +53,8 @@ class DistilCycleGANModel(BaseModel):
         """
         BaseModel.__init__(self, opt)
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'dis_Ars', 'dis_Asr', 'dis_Arr', 'dis_Bsr', 'dis_Brs', 'dis_Bss','comb_dis']
+        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B']#, 'dis_Ars', 'dis_Asr', 'dis_Arr', 'dis_Bsr', 'dis_Brs', 'dis_Bss','comb_dis']
+        self.loss_names_dis = ['dis_Ars', 'dis_Asr', 'dis_Arr', 'dis_Bsr', 'dis_Brs', 'dis_Bss','comb_dis']
         # 'dis_Ars' - A: real to sim A to B, B: sim to real B to A
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real_A', 'fake_B', 'rec_A']
@@ -102,10 +104,6 @@ class DistilCycleGANModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
             
-
-        
-
-
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
 
@@ -117,6 +115,10 @@ class DistilCycleGANModel(BaseModel):
         AtoB = self.opt.direction == 'AtoB'
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
+        match1= re.search(r'(\d+).jpg$', input['A_paths'][0])
+        match2= re.search(r'(\d+).jpg$', input['B_paths'][0])
+        self.real_A_num = int(match1.group(1))
+        self.real_B_num = int(match2.group(1))
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
     def forward(self):
@@ -246,12 +248,23 @@ class DistilCycleGANModel(BaseModel):
         Returns:
             float: The combined distillation loss computed by summing six different distillation losses.
         """
-        self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * self.lambda_C
-        self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
-        self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
-        self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_C
-        self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_C
-        self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+        if self.real_A_num < 10:
+            self.loss_dis_Ars = 0
+            self.loss_dis_Asr = 0
+            self.loss_dis_Arr = 0 
+        else:     
+            self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * self.lambda_C
+            self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
+            self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
+            
+        if self.real_B_num < 10:    
+            self.loss_dis_Bsr = 0
+            self.loss_dis_Brs = 0
+            self.loss_dis_Bss = 0
+        else:    
+            self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_C
+            self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+            self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
         
         return self.loss_dis_Ars + self.loss_dis_Asr + self.loss_dis_Arr + self.loss_dis_Bsr + self.loss_dis_Brs + self.loss_dis_Bss 
 
@@ -266,19 +279,16 @@ class DistilCycleGANModel(BaseModel):
             function: The chosen distillation policy function that takes the current epoch as input and returns the value of lambda_C.
         """
 
-        total_epochs = self.opt.n_epochs + self.opt.n_epochs_decay
-        init_epoch_distil = self.opt.epoch_distil
-        
         if policy == 'const':
             # Constant distillation policy that returns the initial value of lambda_C for all epochs.
-            def const_rule(epoch):
+            def const_rule(distil_epoch):
                 return self.init_lambda_C
             rule = const_rule
             
         elif policy == 'linear':
             # Linear distillation policy that linearly changes the value of lambda_C over epochs.
-            def linear_rule(epoch):
-                l_C = (10 - self.init_lambda_C) * (epoch - init_epoch_distil) / (total_epochs - init_epoch_distil) + self.init_lambda_C
+            def linear_rule(distil_epoch):
+                l_C = self.init_lambda_C + self.opt.distil_slope * distil_epoch
                 return l_C
             rule = linear_rule
         
