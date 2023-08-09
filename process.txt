@@ -5,7 +5,7 @@ Merge sim data: (each time when we change the sim data)
     python3 data_process/merge_json_sim.py 
 
 Transfer images to gan folders: (Make sure the folders are empty)
-    python3 data_process/transfer_images.py --data_type real --data_num 3 --folder_type A --samples 7000
+    python3 data_process/transfer_images.py --data_type real --data_num 3 --folder_type A --samples 950 --data_kind transformed
     python3 data_process/transfer_images.py --data_type sim --data_num 3 --folder_type B --samples 7000
 
 Train CycleGAN:
@@ -15,7 +15,7 @@ Test CycleGAN:
     python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_3 --model cycle_gan --epoch # 
 
 Create json for the gan images:
-    python3 data_process/sim2gan_json.py --sim_data_num 4 --cgan_num 1  --name distil_cgan --data_kind transformed --cgan_epoch # --save True
+    python3 data_process/sim2gan_json.py --sim_data_num 5 --cgan_num 2  --name distil_cgan --data_kind aligned --cgan_epoch latest --save True
 
 Train and Test - regressor:
-    python3 train_regressor.py --train_type gan --sim_data_num 3 --real_data_num 3 --cgan_num 2 --gan_name distil_cgan --cgan_epoch #
+    python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest

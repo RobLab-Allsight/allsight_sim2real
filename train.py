@@ -66,8 +66,13 @@ if __name__ == '__main__':
                 losses = model.get_current_losses()
                 t_comp = (time.time() - iter_start_time) / opt.batch_size
                 visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
+                if model.isDistil and opt.epoch_distil <= epoch:
+                    dis_losses = model.get_current_dis_losses()
+                    visualizer.print_current_losses(-1, epoch_iter, dis_losses, t_comp, t_data)
                 if opt.display_id > 0:
                     visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
+                    if model.isDistil and opt.epoch_distil <= epoch:
+                        visualizer.plot_current_dis_losses(epoch, float(epoch_iter) / dataset_size, dis_losses)
 
             if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))

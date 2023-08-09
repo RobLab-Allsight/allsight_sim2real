@@ -21,7 +21,7 @@ class BaseOptions():
         """Define the common options that are used in both training and test."""
         # basic parameters
         parser.add_argument('--dataroot', default='./datasets/data_Allsight/', help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')#  required=True,
-        parser.add_argument('--name', type=str, default='try_distil', help='name of the experiment. It decides where to store samples and models')
+        parser.add_argument('--name', type=str, default='exp_distil', help='name of the experiment. It decides where to store samples and models')
         parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
         parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         # model parameters

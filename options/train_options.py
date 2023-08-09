@@ -39,7 +39,8 @@ class TrainOptions(BaseOptions):
         # parser.add_argument('--no_distil', action='store_true', help='do not use the distil loss = regular cycle-gan')
         parser.add_argument('--epoch_distil',type=int,default=100, help='number of epoch wich the distil loss starts')
         parser.add_argument('--distil_policy',type=str,default='const',help='distil weight policy | const | linear')
-        parser.add_argument('--lambda_C', type=float, default=1, help='inital weight for distil loss')
+        parser.add_argument('--distil_slope',type=float,default=0.03,help='slope for linear policy')
+        parser.add_argument('--lambda_C', type=float, default=0.5, help='inital weight for distil loss')
 
         self.isTrain = True
         return parser
