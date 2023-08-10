@@ -116,8 +116,11 @@ class Trainer(object):
             if idx == 0:
                 df_data_train = pd.read_json(p).transpose()
             else:
-                df_data_test = pd.read_json(p).transpose()    
-
+                df_data_test = pd.read_json(p).transpose() 
+        
+        # repair ref frame paths           
+        df_data_train['ref_frame'] = df_data_train['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
+        df_data_test['ref_frame'] = df_data_test['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
         # train_df, remain_df = train_test_split(df_data, test_size=0.22, shuffle=True)
         # valid_df, test_df = train_test_split(remain_df, test_size=0.5, shuffle=True)
         
@@ -266,6 +269,7 @@ class Trainer(object):
             print(f'Validation Loss Decreased {self.min_valid_loss} ---> {mean_curr_valid_loss} \t Saving The Model')
             self.min_valid_loss = mean_curr_valid_loss
             torch.save(self.model.state_dict(), '%s/%s.pth' % (self.params['logdir'] + '/', 'model'))
+            self.run_test_loop()
 
         self.log_model_predictions(batch_x, batch_x_ref, batch_y, 'valid')
 
@@ -471,16 +475,16 @@ def main():
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--sim_data_num', type=int, default= 3, help='sim JSON path')
-    parser.add_argument('--real_data_num', type=int, default= 3, help='real JSON path')
+    parser.add_argument('--sim_data_num', type=int, default= 4, help='sim JSON path')
+    parser.add_argument('--real_data_num', type=int, default= 4, help='real JSON path')
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
-    parser.add_argument('--cgan_num', default= 2, type=str)
+    parser.add_argument('--cgan_num', default= 1, type=str)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
     parser.add_argument('--model_name', '-mn', type=str, default='resnet18')
-    parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c
+    parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c, single
     parser.add_argument('--leds', '-ld', type=str, default='rrrgggbbb')
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
