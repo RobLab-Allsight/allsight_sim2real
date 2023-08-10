@@ -248,7 +248,7 @@ class DistilCycleGANModel(BaseModel):
         Returns:
             float: The combined distillation loss computed by summing six different distillation losses.
         """
-        if self.real_A_num < 10:
+        if self.real_A_num > 4735:
             self.loss_dis_Ars = 0
             self.loss_dis_Asr = 0
             self.loss_dis_Arr = 0 
@@ -257,7 +257,7 @@ class DistilCycleGANModel(BaseModel):
             self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
             self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
             
-        if self.real_B_num < 10:    
+        if self.real_B_num > 4735:    
             self.loss_dis_Bsr = 0
             self.loss_dis_Brs = 0
             self.loss_dis_Bss = 0
