@@ -259,7 +259,10 @@ class TactileSimDataset(torch.utils.data.Dataset):
         self.w, self.h = 480, 480
 
         self.X = [df.iloc[idx].frame for idx in range(self.df.shape[0])]
-        self.X_ref = [df.iloc[idx].ref_frame for idx in range(self.df.shape[0])]
+        if params['input_type'] != 'single':
+            self.X_ref = [df.iloc[idx].ref_frame for idx in range(self.df.shape[0])]
+        else:
+            self.X_ref = self.X
         # self.X_ref = ['/'.join(df.iloc[0].frame.split('/')[:-1]) + '/ref_frame.jpg' for idx in range(self.df.shape[0])]
         # self.X_ref = self.X
         
@@ -302,7 +305,7 @@ class TactileSimDataset(torch.utils.data.Dataset):
             ref_img = (ref_img * self.mask).astype(np.uint8)
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # ref_img = img
+
         ref_img = cv2.cvtColor(ref_img, cv2.COLOR_BGR2RGB)
 
         if self.transform:

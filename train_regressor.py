@@ -118,9 +118,10 @@ class Trainer(object):
             else:
                 df_data_test = pd.read_json(p).transpose() 
         
-        # repair ref frame paths           
-        df_data_train['ref_frame'] = df_data_train['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
-        df_data_test['ref_frame'] = df_data_test['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
+        # repair ref frame paths
+        if self.params['input_type'] != 'single':           
+            df_data_train['ref_frame'] = df_data_train['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
+            df_data_test['ref_frame'] = df_data_test['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
         # train_df, remain_df = train_test_split(df_data, test_size=0.22, shuffle=True)
         # valid_df, test_df = train_test_split(remain_df, test_size=0.5, shuffle=True)
         
