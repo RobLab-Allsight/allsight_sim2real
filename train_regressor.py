@@ -472,7 +472,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--epoch', '-ep', type=int, default=30)
+    parser.add_argument('--epoch', '-ep', type=int, default=20)
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
@@ -486,7 +486,7 @@ def main():
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
     parser.add_argument('--model_name', '-mn', type=str, default='resnet18')
     parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c, single
-    parser.add_argument('--leds', '-ld', type=str, default='rrrgggbbb')
+    parser.add_argument('--leds', '-ld', type=str, default='white') # rrrgggbbb
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
     parser.add_argument('--aug', '-aug', default=False)

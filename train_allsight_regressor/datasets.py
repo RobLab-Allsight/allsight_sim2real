@@ -105,7 +105,7 @@ def get_buffer_paths_sim(leds, indenter, params):
         train_path = './datasets/data_Allsight/json_data/{}_test_{}_{}_{}_transformed.json'.format(params['gan_name'],params['cgan_num'],params['sim_data_num'],params['cgan_epoch']) 
     else:
         print('No data provided')
-    test_path = './datasets/data_Allsight/json_data/real_test_4_transformed.json'#.format(params['real_data_num'])  
+    test_path = './datasets/data_Allsight/json_data/real_test_{}_transformed.json'.format(params['real_data_num'])  
     return [train_path,test_path]
 
 
