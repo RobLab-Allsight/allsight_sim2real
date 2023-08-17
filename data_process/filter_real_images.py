@@ -181,8 +181,8 @@ def main(args):
     # df_data_real_train = df_data_real_train[df_data_real_train.time < 4.0]
     # display_images(df_data_real_train)  
     # df_train_real = df_train_real.sample(n=1000, random_state=42)
-    df_data_real_train = df_train
-    df_data_real_test = df_test
+    df_data_real_train = df_train.reset_index(drop=True)
+    df_data_real_test = df_test.reset_index(drop=True)
     ###########################
     # Save real df to json
     ########################### 
