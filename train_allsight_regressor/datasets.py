@@ -294,9 +294,10 @@ class TactileSimDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
 
+
         img = cv2.imread(self.X[idx])
         ref_img = cv2.imread(self.X_ref[idx])
-
+        
         if self.remove_ref:
             img = img - ref_img
 

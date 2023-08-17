@@ -104,7 +104,7 @@ def main(args):
     JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
     JSON_FILE_2 = f"./datasets/data_Allsight/json_data/{data_name_2}.json"
 
-    n_sam_train = 6000  
+    n_sam_train = 5000  
     n_sam_test = 3000   
     ###########################
     # Concat
@@ -207,7 +207,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--real_data_num', type=int, default= 6, help='real JSON path')
-    parser.add_argument('--save', default=True)
+    parser.add_argument('--save', default=False)
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     args = parser.parse_args()
 
