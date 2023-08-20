@@ -5,8 +5,8 @@ Merge sim data: (each time when we change the sim data)
     python3 data_process/merge_json_sim.py 
 
 Transfer images to gan folders: (Make sure the folders are empty)
-    python3 data_process/transfer_images.py --data_type real --data_num 6 --folder_type A --samples 4980 --data_kind transformed
-    python3 data_process/transfer_images.py --data_type sim --data_num 6 --folder_type B --samples 4980 --data_kind transformed
+    python3 data_process/transfer_images.py --data_type real --data_num 7 --folder_type A --samples 0 --data_kind transformed
+    python3 data_process/transfer_images.py --data_type sim --data_num 7 --folder_type B --samples 0 --data_kind transformed
 
 Train CycleGAN:
     python3 train.py --dataroot ./datasets/data_Allsight/ --name exp_distil --model distil_cycle_gan --epoch_distil 1 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
@@ -21,7 +21,8 @@ Train and Test - regressor:
     python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest --input_type with_ref_6c --leds white
 
 weekend runs: 
-    zeus 2 (def): python3 train.py --name allsight_11 --model cycle_gan --gpu_ids 2
-    zeus 3 (unet): python3 train.py --name allsight_12 --model cycle_gan --netG unet_128 --gpu_ids 3 --display_port 8098
-    alon (lambda_A_B): python3 train.py --name allsight_13 --model cycle_gan --gan_mode wgangp
-    curtis (regularization): python3 train.py --name allsight_14 --model cycle_gan --norm batch
+    zeus 0 (def): python3 train.py --name allsight_15 --model cycle_gan --gpu_ids 0 --display_port 8096 --noise_factor 2 
+    zeus 1 (def): python3 train.py --name allsight_16 --model cycle_gan --gpu_ids 1 --display_port 8097 --noise_factor 2 --jitter True --aug_grayscale True
+    zeus 2 (unet): python3 train.py --name allsight_17 --model cycle_gan --load_size 128 --crop_size 128 --netG unet_128 --gpu_ids 2 --display_port 8098 --noise_factor 2 
+    zeus 3 (unet): python3 train.py --name allsight_18 --model cycle_gan --load_size 128 --crop_size 128 --netG unet_128 --gpu_ids 3 --display_port 8099 --noise_factor 2 --jitter True --aug_grayscale True
+    alon (def): python3 train.py --name allsight_19 --model cycle_gan --display_port 8091

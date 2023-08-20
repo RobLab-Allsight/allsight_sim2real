@@ -476,16 +476,16 @@ def main():
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--sim_data_num', type=int, default= 1, help='sim JSON path')
-    parser.add_argument('--real_data_num', type=int, default= 1, help='real JSON path')
+    parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
+    parser.add_argument('--real_data_num', type=int, default= 7, help='real JSON path')
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
     parser.add_argument('--cgan_num', default= 1, type=str)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
-    parser.add_argument('--model_name', '-mn', type=str, default='resnet18')
-    parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c, single
+    parser.add_argument('--model_name', '-mn', type=str, default='resnet18') # 'efficientnet_b0'
+    parser.add_argument('--input_type', '-it', type=str, default='with_ref_6c') #with_ref_6c, single
     parser.add_argument('--leds', '-ld', type=str, default='white') # rrrgggbbb
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
