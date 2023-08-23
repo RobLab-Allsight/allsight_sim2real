@@ -8,7 +8,8 @@ import torch.utils.data as data
 from PIL import Image
 import torchvision.transforms as transforms
 from abc import ABC, abstractmethod
-
+import torch
+import cv2
 
 class BaseDataset(data.Dataset, ABC):
     """This class is an abstract base class (ABC) for datasets.
@@ -102,6 +103,15 @@ def get_transform(opt, params=None, grayscale=False, method=transforms.Interpola
             transform_list.append(transforms.RandomHorizontalFlip())
         elif params['flip']:
             transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
+    
+    if opt.noise_factor > 0:
+        transform_list.append(transforms.Lambda(lambda img: __add_noise(img, opt.noise_factor)))
+    
+    if opt.aug_grayscale:
+        transform_list.append(transforms.RandomGrayscale(p=0.1))
+        
+    if opt.jitter:
+        transform_list.append(transforms.RandomApply([transforms.ColorJitter(0.1, 0.1, 0.1, 0.08)], p=0.1))
 
     if convert:
         transform_list += [transforms.ToTensor()]
@@ -156,6 +166,30 @@ def __flip(img, flip):
         return img.transpose(Image.FLIP_LEFT_RIGHT)
     return img
 
+def circle_mask(size=(480, 480), border=0):
+    """
+        used to filter center circular area of a given image,
+        corresponding to the AllSight surface area
+    """
+    m = np.zeros((size[1], size[0]))
+    m_center = (size[0] // 2, size[1] // 2)
+    m_radius = min(size[0]-10, size[1]-10) // 2 - border
+    m = cv2.circle(m, m_center, m_radius, 255, -1)
+
+    m /= 255
+    m = m.astype(np.float32)
+    mask = np.stack([m, m, m], axis=2)
+    return mask
+
+def __add_noise(img, noise_fac):
+    if noise_fac > 0:
+        image_array = np.array(img)
+        noise = np.random.normal(0, noise_fac, image_array.shape).astype(np.uint8)
+        mask = circle_mask((image_array.shape[0], image_array.shape[1]))
+        noise *=mask.astype(np.uint8)
+        noisy_image_array = np.clip(image_array + noise, 0, 255).astype(np.uint8) 
+        return Image.fromarray(noisy_image_array)
+    return img
 
 def __print_size_warning(ow, oh, w, h):
     """Print warning information about image size(only print once)"""

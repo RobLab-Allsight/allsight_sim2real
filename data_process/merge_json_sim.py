@@ -16,9 +16,9 @@ def main(args):
     # Define paths and data
     ###########################
 
-    leds = 'rrrgggbbb'
+    leds = args.leds
     gel = 'clear' #clear / markers
-    indenter = ['sphere3']
+    indenter = ['sphere3']#, 'cube']
     data_name_1 = f'sim_train_{args.sim_data_num}'
     real_paths = [f"./datasets/data_Allsight/all_data/allsight_sim_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
     JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
@@ -32,7 +32,8 @@ def main(args):
             df_data_sim = pd.read_json(p).transpose()
         else:
             df_data_sim = pd.concat([df_data_sim, pd.read_json(p).transpose()], axis=0)
-  
+    
+    df_data_sim = df_data_sim.sample(n=args.samples, random_state=42)
     ###########################
     # Filter and sample
     ###########################        
@@ -41,8 +42,11 @@ def main(args):
 
     df_data_sim['frame'] = df_data_sim['frame'].str.replace(old_path, new_path)
     df_data_sim['frame'] = df_data_sim['frame'].str.replace(":", "_")
-    df_train_real = df_data_sim#
-    print(df_train_real.shape)
+    
+    df_data_sim['ref_frame'] = df_data_sim['ref_frame'].str.replace(old_path, new_path)
+    df_data_sim['ref_frame'] = df_data_sim['ref_frame'].str.replace(":", "_")
+
+    print(df_data_sim.shape)
 
     ###########################
     # Save real df to json
@@ -51,7 +55,7 @@ def main(args):
         import json
 
         to_dict = {}
-        for index, row in list(df_train_real.iterrows()):
+        for index, row in list(df_data_sim.iterrows()):
             to_dict[index] = dict(row)
         with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
@@ -60,8 +64,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--sim_data_num', type=int, default= 4, help='sim JSON path')
-    parser.add_argument('--save', default=True)
+    parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
+    parser.add_argument('--samples', type=int, default= 3000, help='sim JSON path')
+    parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
+    parser.add_argument('--save', default=False)
     args = parser.parse_args()
 
     main(args)

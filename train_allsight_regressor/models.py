@@ -53,7 +53,10 @@ class PreTrainedModel(nn.Module):
             for parameter in model.parameters():
                 parameter.requires_grad = False
 
-        in_features = model.fc.in_features
+        if version == 'efficientnet_b0':
+            in_features = model.classifier.in_features
+        else:
+            in_features = model.fc.in_features
 
         # modules = [nn.Linear(in_features, 100),
         #            nn.BatchNorm1d(100),
@@ -62,11 +65,17 @@ class PreTrainedModel(nn.Module):
         #            nn.Linear(100, num_classes)]
 
         modules = [nn.Linear(in_features, num_classes)]
-
-        if self.is_classifer:
-            model.fc = nn.Sequential(*modules, nn.Sigmoid())
+        
+        if version == 'efficientnet_b0':
+            if self.is_classifer:
+                model.classifier = nn.Sequential(*modules, nn.Sigmoid())
+            else:
+                model.classifier = nn.Sequential(*modules)
         else:
-            model.fc = nn.Sequential(*modules)
+            if self.is_classifer:
+                model.fc = nn.Sequential(*modules, nn.Sigmoid())
+            else:
+                model.fc = nn.Sequential(*modules)
 
         return model
 
@@ -103,12 +112,19 @@ class PreTrainedModelWithRef(nn.Module):
             for parameter in model.parameters():
                 parameter.requires_grad = False
 
-        self.in_feature = model.fc.in_features
+        if version == 'efficientnet_b0':
+            self.in_feature = model.classifier.in_features
 
-        if not self.is_classifer:
-            model.fc = nn.Sequential()
+            if not self.is_classifer:
+                model.classifier = nn.Sequential()
+            layer = model.conv_stem
+        else:
+            self.in_feature = model.fc.in_features
 
-        layer = model.conv1
+            if not self.is_classifer:
+                model.fc = nn.Sequential()            
+
+            layer = model.conv1
 
         # Creating new Conv2d layer
         new_layer = nn.Conv2d(in_channels=6,
@@ -128,9 +144,10 @@ class PreTrainedModelWithRef(nn.Module):
             #     channel = layer.in_channels + i
             #     new_layer.weight[:, channel:channel + 1, :, :] = layer.weight[:, copy_weights:copy_weights + 1, ::].clone()
             new_layer.weight = nn.Parameter(new_layer.weight)
-
-        model.conv1 = new_layer
-
+        if version == 'efficientnet_b0':
+            model.conv_stem = new_layer
+        else:
+            model.conv1 = new_layer
         return model
 
     def forward(self, images, ref_frame=None, masked_img=None, masked_ref=None):
