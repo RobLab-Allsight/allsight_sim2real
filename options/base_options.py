@@ -50,7 +50,7 @@ class BaseOptions():
         parser.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data augmentation')
         parser.add_argument('--display_winsize', type=int, default=224, help='display window size for both visdom and HTML')
         # own augmantation
-        parser.add_argument('--noise_factor', type=float, default=2, help='add noise to the images')
+        parser.add_argument('--noise_factor', type=float, default=0, help='add noise to the images')
         parser.add_argument('--aug_grayscale', type=bool, default=False, help='gray scale aug with 10%')
         parser.add_argument('--jitter', type=bool, default=False, help='jitter aug with 10%')
         # additional parameters
