@@ -11,6 +11,7 @@ from torchvision import transforms
 from torchvision.utils import make_grid
 import sys
 
+import copy
 from train_allsight_regressor.misc import normalize, unnormalize, normalize_max_min, unnormalize_max_min, save_df_as_json
 from train_allsight_regressor.vis_utils import Arrow3D
 import numpy as np
@@ -33,6 +34,7 @@ np.set_printoptions(suppress=True, linewidth=np.inf)  # to widen the printed arr
 pc_name = os.getlogin()
 
 random.seed(42)
+torch.manual_seed(42)
 
 class Trainer(object):
 
@@ -104,6 +106,8 @@ class Trainer(object):
             self.scheduler = None
 
         self.fig = plt.figure(figsize=(20, 15))
+        
+        self.best_model = copy.deepcopy(self.model)
 
     def prepare_data(self, paths, output_type):
 
@@ -270,6 +274,7 @@ class Trainer(object):
             print(f'Validation Loss Decreased {self.min_valid_loss} ---> {mean_curr_valid_loss} \t Saving The Model')
             self.min_valid_loss = mean_curr_valid_loss
             torch.save(self.model.state_dict(), '%s/%s.pth' % (self.params['logdir'] + '/', 'model'))
+            self.best_model = copy.deepcopy(self.model)
             self.run_test_loop()
 
         self.log_model_predictions(batch_x, batch_x_ref, batch_y, 'valid')
@@ -279,11 +284,12 @@ class Trainer(object):
     def run_test_loop(self):
 
         TEST_COSTS = []
-        self.model.eval()
+        # self.model.eval()
+        self.best_model.eval()
 
         for b, (batch_x, batch_x_ref, batch_y) in enumerate(self.testloader):
             with torch.no_grad():
-                pred_px = self.model(batch_x, batch_x_ref).to(device)
+                pred_px = self.best_model(batch_x, batch_x_ref).to(device)
                 true_px = batch_y.to(device)
                 cost = nn.functional.mse_loss(pred_px, true_px)
 

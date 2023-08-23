@@ -18,7 +18,8 @@ Create json for the gan images:
     python3 data_process/sim2gan_json.py --sim_data_num 5 --cgan_num 2  --name distil_cgan --data_kind aligned --cgan_epoch latest --save True
 
 Train and Test - regressor:
-    python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest --input_type with_ref_6c --leds white
+    python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest 
+    --input_type with_ref_6c --leds white --model_name efficientnet_b0 --aug True
 
 weekend runs: 
     zeus 0 (def): python3 train.py --name allsight_15 --model cycle_gan --gpu_ids 0 --display_port 8096 --noise_factor 2 
