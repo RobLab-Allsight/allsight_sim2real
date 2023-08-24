@@ -22,8 +22,9 @@ Train and Test - regressor:
     --input_type with_ref_6c --leds white --model_name efficientnet_b0 --aug True
 
 weekend runs: 
-    zeus 0 (def): python3 train.py --name allsight_15 --model cycle_gan --gpu_ids 0 --display_port 8096 --noise_factor 2 
-    zeus 1 (def): python3 train.py --name allsight_16 --model cycle_gan --gpu_ids 1 --display_port 8097 --noise_factor 2 --jitter True --aug_grayscale True
-    zeus 2 (unet): python3 train.py --name allsight_17 --model cycle_gan --load_size 128 --crop_size 128 --netG unet_128 --gpu_ids 2 --display_port 8098 --noise_factor 2 
-    zeus 3 (unet): python3 train.py --name allsight_18 --model cycle_gan --load_size 128 --crop_size 128 --netG unet_128 --gpu_ids 3 --display_port 8099 --noise_factor 2 --jitter True --aug_grayscale True
-    alon (def): python3 train.py --name allsight_19 --model cycle_gan --display_port 8091
+    zeus 1 (): python3 train.py --name allsight_distil_24 --model distil_cycle_gan --epoch_distil 80 --distil_policy const --lambda_C 0.5 --gpu_ids 1 --display_port 8096
+    zeus 3 (): python3 train.py --name allsight_distil_25 --model distil_cycle_gan --epoch_distil 80 --distil_policy const --lambda_C 1.5 --gpu_ids 3 --display_port 8097
+    alon   (): python3 train.py --name allsight_distil_26 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
+    curtis (): python3 train.py --name allsight_distil_27 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope -0.02 --lambda_C 3
+    osher  (): python3 train.py --name allsight_distil_28 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope 0.03 --lambda_C 1.5 
+

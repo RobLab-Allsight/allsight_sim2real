@@ -491,7 +491,7 @@ def main():
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
     parser.add_argument('--model_name', '-mn', type=str, default='resnet18') # 'efficientnet_b0'
-    parser.add_argument('--input_type', '-it', type=str, default='with_ref_6c') #with_ref_6c, single
+    parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c, single
     parser.add_argument('--leds', '-ld', type=str, default='white') # rrrgggbbb
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
