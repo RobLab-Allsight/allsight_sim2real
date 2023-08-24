@@ -55,6 +55,7 @@ class DistilCycleGANModel(BaseModel):
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B']#, 'dis_Ars', 'dis_Asr', 'dis_Arr', 'dis_Bsr', 'dis_Brs', 'dis_Bss','comb_dis']
         self.loss_names_dis = ['dis_Ars', 'dis_Asr', 'dis_Arr', 'dis_Bsr', 'dis_Brs', 'dis_Bss','comb_dis']
+        self.loss_names_mask = ['mask_Ars', 'mask_Asr', 'mask_Arr', 'mask_Bsr', 'mask_Brs', 'mask_Bss','comb_mask']
         # 'dis_Ars' - A: real to sim A to B, B: sim to real B to A
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real_A', 'fake_B', 'rec_A']
@@ -77,10 +78,14 @@ class DistilCycleGANModel(BaseModel):
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
         self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-
-        # Load regrssion models
-        self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_7.pth', self.gpu_ids)
-        self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_7.pth', self.gpu_ids)
+        
+        if self.isTrain:
+            # Load json
+            self.real_df = './datasets/data_Allsight/json_data/real_train_7_transformed.json'
+            self.sim_df = './datasets/data_Allsight/json_data/sim_train_7_transformed.json'
+            # Load regrssion models
+            self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_7.pth', self.gpu_ids)
+            self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_7.pth', self.gpu_ids)
 
         if self.isTrain:  # define discriminators
             self.netD_A = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
@@ -98,6 +103,7 @@ class DistilCycleGANModel(BaseModel):
             self.criterionCycle = torch.nn.L1Loss()
             self.criterionIdt = torch.nn.L1Loss()
             self.criterionDistil = torch.nn.MSELoss()
+            self.criterionMask = torch.nn.L1Loss()
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -130,12 +136,13 @@ class DistilCycleGANModel(BaseModel):
         
         batch_x_ref = self.real_A # not included in single mode
         
-        self.real_A_pose = self.real_regressor(self.real_A, batch_x_ref)
-        self.fake_B_pose = self.sim_regressor(self.fake_B, batch_x_ref)
-        self.rec_A_pose = self.real_regressor(self.rec_A, batch_x_ref)
-        self.real_B_pose = self.sim_regressor(self.real_B, batch_x_ref)
-        self.fake_A_pose = self.real_regressor(self.fake_A, batch_x_ref)
-        self.rec_B_pose = self.sim_regressor(self.rec_B, batch_x_ref)
+        if self.isDistil:
+            self.real_A_pose = self.real_regressor(self.real_A, batch_x_ref)
+            self.fake_B_pose = self.sim_regressor(self.fake_B, batch_x_ref)
+            self.rec_A_pose = self.real_regressor(self.rec_A, batch_x_ref)
+            self.real_B_pose = self.sim_regressor(self.real_B, batch_x_ref)
+            self.fake_A_pose = self.real_regressor(self.fake_A, batch_x_ref)
+            self.rec_B_pose = self.sim_regressor(self.rec_B, batch_x_ref)
         
     def backward_D_basic(self, netD, real, fake):
         """Calculate GAN loss for the discriminator
@@ -202,6 +209,10 @@ class DistilCycleGANModel(BaseModel):
             self.loss_comb_dis = self.get_distil_loss_combined()
             self.loss_G +=  self.loss_comb_dis
         
+        if self.isMask:
+            self.loss_comb_mask = self.get_mask_loss_combined()
+            self.loss_G +=  self.loss_comb_mask
+        
         self.loss_G.backward()
 
     def optimize_parameters(self):
@@ -248,7 +259,7 @@ class DistilCycleGANModel(BaseModel):
         Returns:
             float: The combined distillation loss computed by summing six different distillation losses.
         """
-        if self.real_A_num > 4735:
+        if self.real_A_num > 4999:
             self.loss_dis_Ars = 0
             self.loss_dis_Asr = 0
             self.loss_dis_Arr = 0 
@@ -257,7 +268,7 @@ class DistilCycleGANModel(BaseModel):
             self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
             self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
             
-        if self.real_B_num > 4735:    
+        if self.real_B_num > 4999:    
             self.loss_dis_Bsr = 0
             self.loss_dis_Brs = 0
             self.loss_dis_Bss = 0
@@ -267,6 +278,35 @@ class DistilCycleGANModel(BaseModel):
             self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
         
         return self.loss_dis_Ars + self.loss_dis_Asr + self.loss_dis_Arr + self.loss_dis_Bsr + self.loss_dis_Brs + self.loss_dis_Bss 
+
+    def get_mask_loss_combined(self):
+            """
+            Compute and return the combined mask loss.
+
+            Returns:
+                float: The combined mask loss computed by summing six different mask losses.
+            """
+            px_py_r_real = [] # from df + calib with resize of img
+            px_py_r_sim = []
+            mask_A = []
+            mask_B =[]
+            
+            if self.real_A_num > 4999: mask_A = 1
+            else: mask_A = 1 * 0 ##
+                     
+            self.loss_mask_Ars = self.criterionMask(self.real_A*mask_A, self.fake_B*mask_A) * self.lambda_D
+            self.loss_mask_Asr = self.criterionMask(self.fake_B*mask_A, self.rec_A*mask_A) * 0.5 * self.lambda_D #??
+            self.loss_mask_Arr = self.criterionMask(self.real_A*mask_A, self.rec_A*mask_A) * 0.5 * self.lambda_D
+                
+            if self.real_B_num > 4999: mask_B = 1    
+            else: mask_B = 1 * 0 ##
+
+            # else:    
+            #     self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_D
+            #     self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_D
+            #     self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_D
+            
+            return 1
 
     def distil_policy_rule(self, policy):
         """
