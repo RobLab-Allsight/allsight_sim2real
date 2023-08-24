@@ -3,9 +3,46 @@ import pandas as pd
 import random
 import cv2
 import argparse
+import os
+import glob
 
-  
+def is_folder_empty(folder_path):
+    """
+    Check if a folder is empty.
+
+    Args:
+        folder_path (str): Path to the folder.
+
+    Returns:
+        bool: True if the folder is empty, False if it contains files.
+    """
+    return not any(os.listdir(folder_path))
+
+def delete_files_in_folder(folder_path):
+    """
+    Delete all files in a folder.
+
+    Args:
+        folder_path (str): Path to the folder.
+
+    Returns:
+        None
+    """
+    files = glob.glob(os.path.join(folder_path, "*"))
+    for file in files:
+        try:
+            if os.path.isfile(file):
+                os.remove(file)
+                # print(f"Deleted: {file}")
+        except Exception as e:
+            print(f"Error deleting {file}: {e}")
+    
+    print(f"[INFO] files in {folder_path} deleted")
+
 def main(args):
+    print("----------------------")
+    print(f"[INFO] start transfer_images for {args.data_type}")
+
     random.seed(42)
     
     from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_{args.data_kind}.json'
@@ -17,6 +54,14 @@ def main(args):
         df_data = df_data.iloc[:args.samples,:]
         # df_data = df_data.sample(n=args.samples)
     
+    for set in ['train','test']:
+            folder_path = f"{trans_folder_path}{set}{args.folder_type}"
+            if not is_folder_empty(folder_path):
+                print(f"[INFO] folder {folder_path} not empty!")
+                delete_files_in_folder(folder_path)
+            
+    print("[INFO] ready to transfer")
+        
     for idx in range(len(df_data)):
         real_image = (cv2.imread(df_data['frame'][idx])).astype(np.uint8)
         save_path1 = trans_folder_path + 'train' +args.folder_type + f'/{idx}.jpg'  # Specify the path where you want to save the image
@@ -24,6 +69,7 @@ def main(args):
         cv2.imwrite(save_path1, real_image)
         cv2.imwrite(save_path2, real_image)
 
+    print(f"[INFO] finsih transfer_images for {args.data_type}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')

@@ -90,6 +90,8 @@ def get_buffer_paths(leds, gel, indenter, train_sensor_id, test_sensor_id):
     return buffer_paths_to_train, buffer_paths_to_test, list(set(trained_sensor_id_final)), list(set(test_sensor_id_final))
 
 def main(args):
+    print("----------------------")
+    print("[INFO] start filter_real_images ")
     
     ###########################
     # Define paths and data
@@ -197,17 +199,19 @@ def main(args):
             to_dict[index] = dict(row)
         with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
+        
+            print("[INFO] reat train saved")
 
         to_dict2 = {}
         for index, row in list(df_data_real_test.iterrows()):
             to_dict2[index] = dict(row)
         with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
             json.dump(to_dict2, json_file, indent=3)
+        
+            print("[INFO] reat test saved")
     
-    
-    
-    
- 
+    print("[INFO] finish filter_real_images")
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--real_data_num', type=int, default= 7, help='real JSON path')

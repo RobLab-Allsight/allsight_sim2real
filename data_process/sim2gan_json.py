@@ -61,6 +61,8 @@ def main(args):
             to_dict[index] = dict(row)
         with open(f'{JSON_FILE}_transformed.json', 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
+            
+            print("[INFO] json saved")
 
 
 if __name__ == '__main__':
