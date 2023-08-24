@@ -12,6 +12,9 @@ import argparse
 random.seed(42)
 
 def main(args):
+    print("----------------------")
+    print("[INFO] start merge_sim")
+
     ###########################
     # Define paths and data
     ###########################
@@ -59,7 +62,11 @@ def main(args):
             to_dict[index] = dict(row)
         with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
+        
+            print("[INFO] Json saved")
 
+
+    print("[INFO] finish merge_sim")
 
 
 if __name__ == '__main__':
