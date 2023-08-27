@@ -9,7 +9,7 @@ import numpy as np
 
 
 # Load json file
-p = './datasets/data_Allsight/json_data/real_train_7_transformed.json'
+p = './datasets/data_Allsight/json_data/real_train_8_transformed.json'
 df_data = pd.read_json(p).transpose()
 
 # List of image paths and contact_px

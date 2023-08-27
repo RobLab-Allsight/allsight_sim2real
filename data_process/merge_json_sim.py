@@ -72,7 +72,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
-    parser.add_argument('--samples', type=int, default= 3000, help='sim JSON path')
+    parser.add_argument('--samples', type=int, default= 5000, help='sim JSON path')
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     parser.add_argument('--save', default=False)
     args = parser.parse_args()

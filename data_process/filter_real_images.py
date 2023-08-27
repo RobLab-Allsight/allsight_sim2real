@@ -106,7 +106,7 @@ def main(args):
     JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
     JSON_FILE_2 = f"./datasets/data_Allsight/json_data/{data_name_2}.json"
 
-    n_sam_train = 3000  
+    n_sam_train = 5000  
     n_sam_test = 1500   
     ###########################
     # Concat
@@ -117,7 +117,7 @@ def main(args):
     #     buffer_real_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
     # buffer_real_paths = [p for p in buffer_real_paths if ('transformed_annotated' in p)]
 
-    buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12, 16], test_sensor_id=[15])
+    buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12,13,14,16,17,18,19], test_sensor_id=[15])
 
     for idx, p in enumerate(buffer_train_paths):
         if idx == 0:

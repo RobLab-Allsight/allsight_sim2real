@@ -68,14 +68,36 @@ def main(args):
         save_path2 = trans_folder_path + 'test' +args.folder_type + f'/{idx}.jpg'
         cv2.imwrite(save_path1, real_image)
         cv2.imwrite(save_path2, real_image)
+    
+    if args.data_type == 'sim' :
+        ref_frames = df_data['ref_frame'].unique()
+        print("[INFO] saving refrences")
+        for ref_path in ref_frames:
+            for ref_i in range(1,args.ref_num+1):
+                ref_img = cv2.imread(ref_path).astype(np.uint8)
+                save_path1 = trans_folder_path + 'trainA' + f'/{idx+ref_i}.jpg'  # Specify the path where you want to save the image
+                cv2.imwrite(save_path1, ref_img)
+                
+                save_path2 = trans_folder_path + 'testA' + f'/{idx+ref_i}.jpg'
+                cv2.imwrite(save_path2, ref_img)
+                
+                save_path3 = trans_folder_path + 'trainB' + f'/{idx+ref_i}.jpg'  # Specify the path where you want to save the image
+                cv2.imwrite(save_path3, ref_img)
+                
+                save_path4 = trans_folder_path + 'testB' + f'/{idx+ref_i}.jpg'
+                cv2.imwrite(save_path4, ref_img)
+                
+            idx+=ref_i
+        
 
     print(f"[INFO] finsih transfer_images for {args.data_type}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--data_type', type=str, default='real', help='real, sim')
+    parser.add_argument('--data_type', type=str, default='sim', help='real, sim')
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--data_num', type=int, default=6, help='from JSON path')
+    parser.add_argument('--data_num', type=int, default=7, help='from JSON path')
+    parser.add_argument('--ref_num', type=int, default=1, help='number of each refrence frame in the final dataset')
     parser.add_argument('--folder_type', type=str, default='A', help='A, B')
     parser.add_argument('--samples', type=int, default=4980, help='Number of samples, if 0 -> not sample take all')
     args = parser.parse_args()
