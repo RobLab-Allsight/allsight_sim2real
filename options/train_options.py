@@ -19,6 +19,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--update_html_freq', type=int, default=1000, help='frequency of saving training results to html')
         parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
         parser.add_argument('--no_html', action='store_true', help='do not save intermediate training results to [opt.checkpoints_dir]/[opt.name]/web/')
+        parser.add_argument('--vis', default=0, help='')
         # network saving and loading parameters
         parser.add_argument('--save_latest_freq', type=int, default=5000, help='frequency of saving the latest results')
         parser.add_argument('--save_epoch_freq', type=int, default=10, help='frequency of saving checkpoints at the end of epochs')
@@ -37,10 +38,11 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--lr_decay_iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
         # distil training parameters
         # parser.add_argument('--no_distil', action='store_true', help='do not use the distil loss = regular cycle-gan')
-        parser.add_argument('--epoch_distil',type=int,default=80, help='number of epoch wich the distil loss starts')
+        parser.add_argument('--epoch_distil',type=int,default=2, help='number of epoch wich the distil loss starts')
         parser.add_argument('--distil_policy',type=str,default='const',help='distil weight policy | const | linear')
         parser.add_argument('--distil_slope',type=float,default=0.03,help='slope for linear policy')
         parser.add_argument('--lambda_C', type=float, default=0.5, help='inital weight for distil loss')
-
+        # mask training parameters
+        parser.add_argument('--lambda_D', type=float, default=10, help='inital weight for mask loss')
         self.isTrain = True
         return parser

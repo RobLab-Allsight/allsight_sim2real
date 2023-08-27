@@ -243,8 +243,8 @@ def define_regressor(reg_path, gpu_ids=[]):
     net = None
 
     net = PreTrainedModel('resnet18', output_map['pose'])
-    net.load_state_dict(torch.load(reg_path))
-    net = net.to(device=f'cuda:{gpu_ids[0]}')
+    net.load_state_dict(torch.load(reg_path, map_location=torch.device(f'cuda:{gpu_ids[0]}')))
+    # net = net.to(device=f'cuda:{gpu_ids[0]}')
     return init_reg(net, gpu_ids)
 
 ##############################################################################
