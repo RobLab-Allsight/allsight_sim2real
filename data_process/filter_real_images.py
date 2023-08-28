@@ -166,26 +166,25 @@ def main(args):
     df_data_real_train['frame'] = df_data_real_train['frame'].str.replace(old_path, new_path)
     df_data_real_train['ref_frame'] = df_data_real_train['ref_frame'].str.replace(old_path, new_path)
     
-    df_data_real_train = filter_id_time(df_data_real_train, 670)
+    df_data_real_train = filter_id_time(df_data_real_train, 730)
     
     # df_data_real_train = df_data_real_train[df_data_real_train.time > 3.5]
-    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.33]
+    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.25]
     ###
-    # df_train_up = df_data_real_train[df_data_real_train.num > 8]
-    # df_train_down = df_data_real_train[df_data_real_train.num <= 8]
-    # df_train_up = df_train_up.drop(df_train_up.index[1::3])
-    # df_train_up = df_train_up.reset_index(drop=True)
-    # df_train = pd.concat([df_train_down, df_train_up], ignore_index=True)
+    df_train_up = df_data_real_train[df_data_real_train.num > 8]
+    df_train_down = df_data_real_train[df_data_real_train.num <= 8]
+    df_train_up = df_train_up.drop(df_train_up.index[1::3])
+    df_train_up = df_train_up.reset_index(drop=True)
+    df_train = pd.concat([df_train_down, df_train_up], ignore_index=True)
     
-    # df_test_up = df_data_real_test[df_data_real_test.num > 8]
-    # df_test_down = df_data_real_test[df_data_real_test.num <= 8]
-    # df_test_up = df_test_up.drop(df_test_up.index[1::3])
-    # df_test_up = df_test_up.reset_index(drop=True)
-    # df_test = pd.concat([df_test_down, df_test_up], ignore_index=True)
+    df_test_up = df_data_real_test[df_data_real_test.num > 8]
+    df_test_down = df_data_real_test[df_data_real_test.num <= 8]
+    df_test_up = df_test_up.drop(df_test_up.index[1::3])
+    df_test_up = df_test_up.reset_index(drop=True)
+    df_test = pd.concat([df_test_down, df_test_up], ignore_index=True)
     ###
-    ###
-    df_train = df_data_real_train
-    df_test = df_data_real_test
+    # df_train = df_data_real_train
+    # df_test = df_data_real_test
     ###
     df_train = df_train.sample(n=n_sam_train, random_state=42)
     df_test = df_test.sample(n=n_sam_test, random_state=42)
@@ -213,7 +212,7 @@ def main(args):
         with open(r'{}_transformed.json'.format(JSON_FILE_1[:-5]), 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
         
-            print("[INFO] reat train saved")
+            print("[INFO] real train saved")
 
         to_dict2 = {}
         for index, row in list(df_data_real_test.iterrows()):
@@ -221,13 +220,13 @@ def main(args):
         with open(r'{}_transformed.json'.format(JSON_FILE_2[:-5]), 'w') as json_file:
             json.dump(to_dict2, json_file, indent=3)
         
-            print("[INFO] reat test saved")
+            print("[INFO] real test saved")
     
     print("[INFO] finish filter_real_images")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--real_data_num', type=int, default=8, help='real JSON path')
+    parser.add_argument('--real_data_num', type=int, default=1, help='real JSON path')
     parser.add_argument('--save', default=False)
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     args = parser.parse_args()

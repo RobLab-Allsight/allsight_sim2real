@@ -11,6 +11,22 @@ import argparse
 
 random.seed(42)
 
+
+def filter_id_sample(df, num):
+    
+    df_sorted = df
+    # Create an empty DataFrame to store the filtered results
+    filtered_df = pd.DataFrame()
+    # Iterate through unique IDs
+    for unique_id in df_sorted['sensor_id'].unique():
+        # Get the top num samples with the largest time for each ID
+        samples_id = df_sorted[df_sorted['sensor_id'] == unique_id].sample(n=num, random_state=42)
+        filtered_df = filtered_df.append(samples_id)
+
+    # Reset the index of the filtered DataFrame
+    filtered_df = filtered_df.reset_index(drop=True)
+    return filtered_df
+
 def main(args):
     print("----------------------")
     print("[INFO] start merge_sim")
@@ -33,9 +49,16 @@ def main(args):
     for idx, p in enumerate(buffer_sim_paths):
         if idx == 0:
             df_data_sim = pd.read_json(p).transpose()
+            df_data_sim['sensor_id'] = idx + 12
         else:
-            df_data_sim = pd.concat([df_data_sim, pd.read_json(p).transpose()], axis=0)
-    
+            df = pd.read_json(p).transpose()
+            df['sensor_id'] = idx + 12
+            df_data_sim = pd.concat([df_data_sim, df], axis=0)
+    #train
+    df_data_sim = filter_id_sample(df_data_sim, 510)
+    #test
+    # df_data_sim = df_data_sim[df_data_sim['sensor_id'] == 15].sample(n=3100, random_state=42)
+    #
     df_data_sim = df_data_sim.sample(n=args.samples, random_state=42)
     ###########################
     # Filter and sample
@@ -48,7 +71,8 @@ def main(args):
     
     df_data_sim['ref_frame'] = df_data_sim['ref_frame'].str.replace(old_path, new_path)
     df_data_sim['ref_frame'] = df_data_sim['ref_frame'].str.replace(":", "_")
-
+    
+    df_data_sim = df_data_sim.reset_index(drop=True)
     print(df_data_sim.shape)
 
     ###########################
@@ -71,8 +95,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
-    parser.add_argument('--samples', type=int, default= 5000, help='sim JSON path')
+    parser.add_argument('--sim_data_num', type=int, default= 8, help='sim JSON path')
+    parser.add_argument('--samples', type=int, default= 4000, help='sim JSON path')
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     parser.add_argument('--save', default=False)
     args = parser.parse_args()

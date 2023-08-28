@@ -35,13 +35,11 @@ def get_image_number(image_path):
 
 def main(args):
     random.seed(42)
-    if args.gan_name == 'distil_cgan': pp = '_distil_'
-    else: pp = '_'
     
-    model_G_path = f'./checkpoints/allsight{pp}{args.cgan_num}/{args.cgan_epoch}_net_G_B.pth'
-    json_gan_p = f'./datasets/data_Allsight/json_data/{args.gan_name}_test_{args.cgan_num}_{args.sim_data_num}_{args.cgan_epoch}_{args.data_kind}.json'
-    json_gan_p_new = f'./datasets/data_Allsight/json_data/{args.gan_name}_test_{args.cgan_num}_{args.sim_data_num}_{args.cgan_epoch}_{args.data_kind}_ref.json'
-    copy_to_path = f'./datasets/data_Allsight/{args.gan_name}_data/test_{args.cgan_num}_{args.cgan_epoch}/ref_frames/'
+    model_G_path = f'./checkpoints/allsight_{args.gan_num}/{args.gan_epoch}_net_G_B.pth'
+    json_gan_p = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_{args.data_kind}.json'
+    json_gan_p_new = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_{args.data_kind}_ref.json'
+    copy_to_path = f'./datasets/data_Allsight/{args.gan_type}_data/test_{args.gan_num}_{args.gan_epoch}/ref_frames/'
     
     # Create the directory if it doesn't exist
     if not os.path.exists(copy_to_path):
@@ -94,9 +92,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--cgan_num', type=str, default= 28)
-    parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
-    parser.add_argument('--gan_name', type=str, default='distil_cgan', help='cgan, distil_cgan')
+    parser.add_argument('--gan_num', type=str, default= 28)
+    parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
+    parser.add_argument('--gan_type', type=str, default='distil_cgan', help='cgan, distil_cgan, mask_cgan')
     parser.add_argument('--save', default=True)
     args = parser.parse_args()
 
