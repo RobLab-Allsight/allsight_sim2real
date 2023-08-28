@@ -123,11 +123,7 @@ def main(args):
     JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
     JSON_FILE_2 = f"./datasets/data_Allsight/json_data/{data_name_2}.json"
 
-<<<<<<< HEAD
-    n_sam_train = 5000  
-=======
     n_sam_train = 4000  
->>>>>>> dev-mask
     n_sam_test = 1500   
 
     buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12,13,14,16,17,18,19], test_sensor_id=[15])
