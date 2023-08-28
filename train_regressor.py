@@ -196,18 +196,19 @@ class Trainer(object):
         self.min_valid_loss = np.inf
         mean_train_loss = np.inf
 
-        COSTS, EVAL_COSTS, epoch_cost, eval_cost = [], [], [], []
+        COSTS, EVAL_COSTS, BATCH_TRAIN_RMSE_LOSS, epoch_cost, eval_cost = [], [], [], [], []
         BATCH_SIZE = self.model_params['batch_size']
-
+        
         for epoch in range(epochs):
 
             self.model.train()
             with tqdm(self.trainloader, unit="batch") as tepoch:
                 for (batch_x, batch_x_ref, batch_y) in tepoch:
                     tepoch.set_description(f"Epoch [{epoch}/{epochs}]")
-
-                    loss = nn.functional.mse_loss(self.model(batch_x, batch_x_ref).to(device),
-                                                  batch_y.to(device))
+                    pred_px = self.model(batch_x, batch_x_ref).to(device)
+                    true_px = batch_y.to(device)
+                    
+                    loss = nn.functional.mse_loss(pred_px,true_px)
 
                     self.optimizer.zero_grad()
                     loss.backward()
@@ -215,13 +216,19 @@ class Trainer(object):
                     cost = loss.item()
                     COSTS.append(cost)
 
+                    pred,true = self.unormalize(pred_px,true_px)
+                    rmse = self.rmse_loss(pred,true)
+                    
+                    BATCH_TRAIN_RMSE_LOSS.append(rmse)
+                    
                     torch.cuda.empty_cache()
                     tepoch.set_postfix(loss=cost, last_train_loss=mean_train_loss)
 
+            rmse_train_loss = np.mean(BATCH_TRAIN_RMSE_LOSS,axis=0)
             mean_train_loss = np.mean(COSTS[-len(self.trainloader):])
             # print('Epoch train loss : ' + str(mean_train_loss))
 
-            self.log_model_predictions(batch_x, batch_x_ref, batch_y, 'train')
+            self.log_model_predictions(batch_x, pred, true, rmse_train_loss, 'train')
 
             EVAL_COSTS = self.run_validation_loop(EVAL_COSTS)
             mean_val_loss = np.mean(EVAL_COSTS[-len(self.validloader):])
@@ -255,7 +262,7 @@ class Trainer(object):
     def run_validation_loop(self, EVAL_COSTS):
 
         self.model.eval()
-
+        BATCH_VAL_RMSE_LOSS = []
         with tqdm(self.validloader, unit="batch") as tepoch:
             for (batch_x, batch_x_ref, batch_y) in tepoch:
                 tepoch.set_description("Validate")
@@ -264,10 +271,15 @@ class Trainer(object):
                     pred_px = self.model(batch_x, batch_x_ref).to(device)
                     true_px = batch_y.to(device)
                     cost = nn.functional.mse_loss(pred_px, true_px)
+                    
+                    pred, true = self.unormalize(pred_px,true_px)
+                    rmse = self.rmse_loss(pred, true)
 
                 EVAL_COSTS.append(cost.item())
+                BATCH_VAL_RMSE_LOSS.append(rmse)
                 tepoch.set_postfix(loss=cost.item(), min_valid_loss=self.min_valid_loss)
 
+        rmse_curr_valid_loss = np.mean(BATCH_VAL_RMSE_LOSS,axis=0)
         mean_curr_valid_loss = np.mean(EVAL_COSTS[-len(self.validloader):])
 
         if self.min_valid_loss > mean_curr_valid_loss:
@@ -277,13 +289,15 @@ class Trainer(object):
             self.best_model = copy.deepcopy(self.model)
             self.run_test_loop()
 
-        self.log_model_predictions(batch_x, batch_x_ref, batch_y, 'valid')
+        self.log_model_predictions(batch_x, pred, true, rmse_curr_valid_loss, 'valid')
+
 
         return EVAL_COSTS
 
     def run_test_loop(self):
 
         TEST_COSTS = []
+        BATCH_TEST_RMSE_LOSS = []
         # self.model.eval()
         self.best_model.eval()
 
@@ -292,31 +306,25 @@ class Trainer(object):
                 pred_px = self.best_model(batch_x, batch_x_ref).to(device)
                 true_px = batch_y.to(device)
                 cost = nn.functional.mse_loss(pred_px, true_px)
-
+                
+                pred, true = self.unormalize(pred_px,true_px)
+                rmse = self.rmse_loss(pred, true)
+                
             TEST_COSTS.append(cost.item())
+            BATCH_TEST_RMSE_LOSS.append(rmse)
 
+        rmse_curr_test_loss = np.mean(BATCH_TEST_RMSE_LOSS, axis=0)
         mean_curr_test_loss = np.mean(TEST_COSTS)
         print('\nTest loss : ' + str(mean_curr_test_loss))
 
-        self.log_model_predictions(batch_x, batch_x_ref, batch_y, 'test')
-
-    def log_model_predictions(self, batch_x, batch_x_ref,  batch_y, status):
-        # model predictions
-        if status == 'test':
-            self.best_model.eval()
-
-            with torch.no_grad():
-
-                pred = self.best_model(batch_x, batch_x_ref).to(device).cpu().detach().numpy()
-                true = batch_y.to(device).cpu().detach().numpy()
-        else:    
-            self.model.eval()
-
-            with torch.no_grad():
-
-                pred = self.model(batch_x, batch_x_ref).to(device).cpu().detach().numpy()
-                true = batch_y.to(device).cpu().detach().numpy()
-
+        self.log_model_predictions(batch_x, pred, true, rmse_curr_test_loss, 'test')
+    
+    def unormalize(self,pred_px, true_px):
+        # convert
+        pred = pred_px.cpu().detach().numpy()
+        true = true_px.cpu().detach().numpy()
+        
+        # unormalize
         if self.model_params['norm_method'] == 'meanstd':
             pred = unnormalize(pred, self.originalset.data_statistics['mean'], self.originalset.data_statistics['std'])
             true = unnormalize(true, self.originalset.data_statistics['mean'], self.originalset.data_statistics['std'])
@@ -325,11 +333,22 @@ class Trainer(object):
                                        self.originalset.data_statistics['min'])
             true = unnormalize_max_min(true, self.originalset.data_statistics['max'],
                                        self.originalset.data_statistics['min'])
+    
+        return pred, true
+    
+    
+    def rmse_loss(self, pred, true):
+        # calc rmse
+        rmse = np.sqrt(np.mean((true - pred) ** 2, axis=0))
+        
+        return rmse
+    
+    def log_model_predictions(self, batch_x, pred, true, rmse, status):
 
         log_path = self.params['logdir'] + '/' + f'{status}_eval.txt'
         mode = 'a' if os.path.exists(log_path) else 'w'
         with open(log_path, mode) as f:
-            f.write(f'rmse: {np.sqrt(np.mean((true - pred) ** 2, axis=0))}\n')
+            f.write(f'rmse: {rmse}\n')
 
         # display visual model inputs
         inv_normalize = transforms.Normalize(
