@@ -18,7 +18,7 @@ Create json for the gan images:
     python3 data_process/sim2gan_json.py --sim_data_num 5 --cgan_num 2 --name distil_cgan --data_kind transformed --cgan_epoch latest --save True
 
 Update ref frame in the gan json:
-    python3 data_process/update_ref_frame_gan.py --sim_data_num 7 --cgan_num 25 --name distil_cgan
+    python3 data_process/update_ref_frame_gan.py --sim_data_num 7 --cgan_num 25 --gan_name distil_cgan
 
 Train and Test - regressor:
     python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest 
