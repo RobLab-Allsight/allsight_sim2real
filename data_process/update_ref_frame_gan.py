@@ -86,15 +86,17 @@ def main(args):
             to_dict[index] = dict(row)
         with open(f'{json_gan_p_new}', 'w') as json_file:
             json.dump(to_dict, json_file, indent=3)
+            
+            print("[INFO] json updated")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--cgan_num', type=str, default= 19)
+    parser.add_argument('--cgan_num', type=str, default= 28)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
-    parser.add_argument('--gan_name', type=str, default='cgan', help='cgan, distil_cgan')
+    parser.add_argument('--gan_name', type=str, default='distil_cgan', help='cgan, distil_cgan')
     parser.add_argument('--save', default=True)
     args = parser.parse_args()
 

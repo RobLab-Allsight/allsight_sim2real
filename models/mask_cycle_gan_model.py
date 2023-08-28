@@ -345,7 +345,7 @@ class MaskCycleGANModel(BaseModel):
             self.loss_mask_Bss = self.criterionMask(self.real_B*mask_B, self.rec_B*mask_B) * 0.5 * lambda_D
             
             # for debug
-            if self.real_A_num < 4999:
+            if self.real_A_num < 4999 and self.real_A_num % 700== 0:
                 self.img_to_vis(self.opt.vis, [self.real_A, mask_A, self.real_B, mask_B, self.fake_B])
             
             return self.loss_mask_Ars+self.loss_mask_Asr+self.loss_mask_Arr+self.loss_mask_Bsr+self.loss_mask_Brs+self.loss_mask_Bss 

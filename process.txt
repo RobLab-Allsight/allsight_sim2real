@@ -15,16 +15,21 @@ Test CycleGAN:
     python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_3 --model cycle_gan --epoch # 
 
 Create json for the gan images:
-    python3 data_process/sim2gan_json.py --sim_data_num 5 --cgan_num 2  --name distil_cgan --data_kind aligned --cgan_epoch latest --save True
+    python3 data_process/sim2gan_json.py --sim_data_num 5 --cgan_num 2 --name distil_cgan --data_kind transformed --cgan_epoch latest --save True
+
+Update ref frame in the gan json:
+    python3 data_process/update_ref_frame_gan.py --sim_data_num 7 --cgan_num 25 --name distil_cgan
 
 Train and Test - regressor:
     python3 train_regressor.py --train_type gan --sim_data_num 5 --real_data_num 5 --cgan_num 2 --gan_name distil_cgan --cgan_epoch latest 
     --input_type with_ref_6c --leds white --model_name efficientnet_b0 --aug True
 
+
 weekend runs: 
-    zeus 1 (): python3 train.py --name allsight_distil_24 --model distil_cycle_gan --epoch_distil 80 --distil_policy const --lambda_C 0.5 --gpu_ids 1 --display_port 8096
-    zeus 3 (): python3 train.py --name allsight_distil_25 --model distil_cycle_gan --epoch_distil 80 --distil_policy const --lambda_C 1.5 --gpu_ids 3 --display_port 8097
-    alon   (): python3 train.py --name allsight_distil_26 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
-    curtis (): python3 train.py --name allsight_distil_27 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope -0.02 --lambda_C 3
-    osher  (): python3 train.py --name allsight_distil_28 --model distil_cycle_gan --epoch_distil 70 --distil_policy linear --distil_slope 0.03 --lambda_C 1.5 
+    zeus 1 (): python3 train.py --name allsight_50 --model cycle_gan --gpu_ids 1 --display_port 8096
+    zeus 3 (): python3 train.py --name allsight_51 --model cycle_gan --gpu_ids 3 --display_port 8097
+    alon   (): python3 train.py --name allsight_distil_52 --model distil_cycle_gan --epoch_distil 70 --lambda_C 0.5
+    curtis (): python3 train.py --name allsight_distil_53 --model distil_cycle_gan --epoch_distil 70 --lambda_C 1.5
+    osher  (): python3 train.py --name allsight_mask_54 --model mask_cycle_gan --epoch_distil 210
+    osher  (): python3 train.py --name allsight_mask_55 --model mask_cycle_gan --epoch_distil 80 --lambda_C 1 
 
