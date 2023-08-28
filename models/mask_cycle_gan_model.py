@@ -86,11 +86,11 @@ class MaskCycleGANModel(BaseModel):
         
         if self.isTrain:
             # Load json
-            self.real_df = pd.read_json('./datasets/data_Allsight/json_data/real_train_7_transformed.json').transpose()
-            self.sim_df = pd.read_json('./datasets/data_Allsight/json_data/sim_train_7_transformed.json').transpose()
+            self.real_df = pd.read_json('./datasets/data_Allsight/json_data/real_train_8_transformed.json').transpose()
+            self.sim_df = pd.read_json('./datasets/data_Allsight/json_data/sim_train_8_transformed.json').transpose()
             # Load regrssion models
-            self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_7.pth', self.gpu_ids)
-            self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_7.pth', self.gpu_ids)
+            self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_8.pth', self.gpu_ids)
+            self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_8.pth', self.gpu_ids)
 
             self.img_dim = opt.crop_size
             
@@ -323,14 +323,16 @@ class MaskCycleGANModel(BaseModel):
             else: 
                 px_py_r_real = self.real_df['contact_px'][self.real_A_num] # from df + calib with resize of img
                 px_py_r_real = (np.array(px_py_r_real)*self.img_dim)//480 
+                # px_py_r_real[2] = px_py_r_real[2] * 2 
                 mask_A = np.ones((self.img_dim, self.img_dim), dtype=np.uint8)
                 mask_A = cv2.circle(mask_A, (int(px_py_r_real[0]), int(px_py_r_real[1])), int(px_py_r_real[2]), 0, thickness=-1)
                 mask_A = torch.tensor(mask_A, dtype=torch.uint8).to(device=self.real_A.device)
                 mask_A = mask_A.unsqueeze(0).expand(1, 3, -1, -1)
-            if self.real_B_num > -1: mask_B = 1    
+            if self.real_B_num > 4999: mask_B = 1    
             else:
                 px_py_r_sim = self.sim_df['contact_px'][self.real_B_num]
                 px_py_r_sim = (np.array(px_py_r_sim)*self.img_dim)//480 
+                px_py_r_sim[2] = px_py_r_sim[2] * 2 
                 mask_B = np.ones((self.img_dim, self.img_dim), dtype=np.uint8) 
                 mask_B = cv2.circle(mask_B, (int(px_py_r_sim[0]), int(px_py_r_sim[1])), int(px_py_r_sim[2]), 0, thickness=-1)
                 mask_B = torch.tensor(mask_B, dtype=torch.uint8).to(device=self.real_B.device) 
@@ -347,6 +349,7 @@ class MaskCycleGANModel(BaseModel):
             # for debug
             if self.real_A_num < 4999 and self.real_A_num % 700== 0:
                 self.img_to_vis(self.opt.vis, [self.real_A, mask_A, self.real_B, mask_B, self.fake_B])
+                # self.img_to_vis(self.opt.vis, [self.real_B, mask_B, self.real_A, mask_A, self.fake_A])
             
             return self.loss_mask_Ars+self.loss_mask_Asr+self.loss_mask_Arr+self.loss_mask_Bsr+self.loss_mask_Brs+self.loss_mask_Bss 
 
