@@ -302,13 +302,20 @@ class Trainer(object):
 
     def log_model_predictions(self, batch_x, batch_x_ref,  batch_y, status):
         # model predictions
+        if status == 'test':
+            self.best_model.eval()
 
-        self.model.eval()
+            with torch.no_grad():
 
-        with torch.no_grad():
+                pred = self.best_model(batch_x, batch_x_ref).to(device).cpu().detach().numpy()
+                true = batch_y.to(device).cpu().detach().numpy()
+        else:    
+            self.model.eval()
 
-            pred = self.model(batch_x, batch_x_ref).to(device).cpu().detach().numpy()
-            true = batch_y.to(device).cpu().detach().numpy()
+            with torch.no_grad():
+
+                pred = self.model(batch_x, batch_x_ref).to(device).cpu().detach().numpy()
+                true = batch_y.to(device).cpu().detach().numpy()
 
         if self.model_params['norm_method'] == 'meanstd':
             pred = unnormalize(pred, self.originalset.data_statistics['mean'], self.originalset.data_statistics['std'])

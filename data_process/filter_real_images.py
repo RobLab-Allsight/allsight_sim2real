@@ -48,6 +48,21 @@ def display_images(df):
     
     return
 
+def filter_id_time(df, num):
+    
+    df_sorted = df.sort_values(by=['sensor_id', 'time'], ascending=[True, False])
+    # Create an empty DataFrame to store the filtered results
+    filtered_df = pd.DataFrame()
+    # Iterate through unique IDs
+    for unique_id in df_sorted['sensor_id'].unique():
+        # Get the top num samples with the largest time for each ID
+        top_samples = df_sorted[df_sorted['sensor_id'] == unique_id].head(num)
+        filtered_df = filtered_df.append(top_samples)
+
+    # Reset the index of the filtered DataFrame
+    filtered_df = filtered_df.reset_index(drop=True)
+    return filtered_df
+
 def get_third_element(lst):
     return lst[2]
 
@@ -82,12 +97,14 @@ def get_buffer_paths(leds, gel, indenter, train_sensor_id, test_sensor_id):
                 if sm in train_sensor_id:
                     buffer_paths_to_train.append(bp)
                     trained_sensor_id_final.append(sm)
+                    print(f'Sensor {sm} is in the train set')
                 elif sm in test_sensor_id:
                     buffer_paths_to_test.append(bp)
                     test_sensor_id_final.append(sm)
+                    print(f'Sensor {sm} is in the test set')
                 else: print(f'Sensor {sm} is not in the train set and not in the test set')
 
-    return buffer_paths_to_train, buffer_paths_to_test, list(set(trained_sensor_id_final)), list(set(test_sensor_id_final))
+    return buffer_paths_to_train, buffer_paths_to_test, list(trained_sensor_id_final), list(test_sensor_id_final)
 
 def main(args):
     print("----------------------")
@@ -106,73 +123,73 @@ def main(args):
     JSON_FILE_1 = f"./datasets/data_Allsight/json_data/{data_name_1}.json"
     JSON_FILE_2 = f"./datasets/data_Allsight/json_data/{data_name_2}.json"
 
+<<<<<<< HEAD
     n_sam_train = 5000  
+=======
+    n_sam_train = 4000  
+>>>>>>> dev-mask
     n_sam_test = 1500   
-    ###########################
-    # Concat
-    ###########################
-
-    # buffer_real_paths = []
-    # for p in real_paths:
-    #     buffer_real_paths += [y for x in os.walk(p) for y in glob(os.path.join(x[0], '*.json'))]
-    # buffer_real_paths = [p for p in buffer_real_paths if ('transformed_annotated' in p)]
 
     buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12,13,14,16,17,18,19], test_sensor_id=[15])
 
+    ###########################
+    # Define data frames
+    ###########################
+    
     for idx, p in enumerate(buffer_train_paths):
         if idx == 0:
             df_data_real_train = pd.read_json(p).transpose()
+            df_data_real_train['sensor_id'] = sensors_1[idx]
         else:
-            df_data_real_train = pd.concat([df_data_real_train, pd.read_json(p).transpose()], axis=0)
-
-    df_data_real_train['ft_z'] = df_data_real_train['ft_ee_transformed'].apply(get_third_element)
+            df = pd.read_json(p).transpose()
+            df['sensor_id'] = sensors_1[idx]
+            df_data_real_train = pd.concat([df_data_real_train, df], axis=0)
     
     for idx, p in enumerate(buffer_test_paths):
         if idx == 0:
             df_data_real_test = pd.read_json(p).transpose()
+            df_data_real_test['sensor_id'] = sensors_2[idx]
         else:
-            df_data_real_test = pd.concat([df_data_real_test, pd.read_json(p).transpose()], axis=0)
-
-    df_data_real_test['ft_z'] = df_data_real_test['ft_ee_transformed'].apply(get_third_element)    
+            df = pd.read_json(p).transpose()
+            df['sensor_id'] = sensors_2[idx]
+            df_data_real_test = pd.concat([df_data_real_test, df], axis=0)
+    
+    # If we do filter by force         
+    # df_data_real_train['ft_z'] = df_data_real_train['ft_ee_transformed'].apply(get_third_element)
+    # df_data_real_test['ft_z'] = df_data_real_test['ft_ee_transformed'].apply(get_third_element)    
    
     ###########################
     # Filter and sample
-    ###########################        
-
-    # df_data_real = df_data_real[df_data_real.time > 3.0]  # only over touching samples!
-    # df_data_real = df_data_real[df_data_real.depth > 0.002]
-    # df_data_real = df_data_real[df_data_real.depth < 0.01247]
-    # df_data_real_train = df_data_real_train[df_data_real_train.ft_z < -5.9]
-    # df_data_real_train = df_data_real_train.sample(n=n_sam_train, random_state=42)
-    # df_data_real_test = df_data_real_test[df_data_real_test.ft_z < -5.9]
-    # df_data_real_test = df_data_real_test.sample(n=n_sam_test, random_state=42)
-
+    ###########################
+       
     old_path = "/home/osher/catkin_ws/src/allsight/dataset/"
     new_path = f"./datasets/data_Allsight/all_data/allsight_dataset/"
-
+    
     df_data_real_test['frame'] = df_data_real_test['frame'].str.replace(old_path, new_path)
     df_data_real_test['ref_frame'] = df_data_real_test['ref_frame'].str.replace(old_path, new_path)
     df_data_real_train['frame'] = df_data_real_train['frame'].str.replace(old_path, new_path)
     df_data_real_train['ref_frame'] = df_data_real_train['ref_frame'].str.replace(old_path, new_path)
-
-    df_data_real_train = df_data_real_train[df_data_real_train.time > 3.5]
-    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.3]
-    ###
-    df_train_up = df_data_real_train[df_data_real_train.num > 8]
-    df_train_down = df_data_real_train[df_data_real_train.num <= 8]
-    df_train_up = df_train_up.drop(df_train_up.index[1::3])
-    df_train_up = df_train_up.reset_index(drop=True)
-    df_train = pd.concat([df_train_down, df_train_up], ignore_index=True)
     
-    df_test_up = df_data_real_test[df_data_real_test.num > 8]
-    df_test_down = df_data_real_test[df_data_real_test.num <= 8]
-    df_test_up = df_test_up.drop(df_test_up.index[1::3])
-    df_test_up = df_test_up.reset_index(drop=True)
-    df_test = pd.concat([df_test_down, df_test_up], ignore_index=True)
+    df_data_real_train = filter_id_time(df_data_real_train, 670)
+    
+    # df_data_real_train = df_data_real_train[df_data_real_train.time > 3.5]
+    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.33]
+    ###
+    # df_train_up = df_data_real_train[df_data_real_train.num > 8]
+    # df_train_down = df_data_real_train[df_data_real_train.num <= 8]
+    # df_train_up = df_train_up.drop(df_train_up.index[1::3])
+    # df_train_up = df_train_up.reset_index(drop=True)
+    # df_train = pd.concat([df_train_down, df_train_up], ignore_index=True)
+    
+    # df_test_up = df_data_real_test[df_data_real_test.num > 8]
+    # df_test_down = df_data_real_test[df_data_real_test.num <= 8]
+    # df_test_up = df_test_up.drop(df_test_up.index[1::3])
+    # df_test_up = df_test_up.reset_index(drop=True)
+    # df_test = pd.concat([df_test_down, df_test_up], ignore_index=True)
     ###
     ###
-    # df_train = df_data_real_train
-    # df_test = df_data_real_test
+    df_train = df_data_real_train
+    df_test = df_data_real_test
     ###
     df_train = df_train.sample(n=n_sam_train, random_state=42)
     df_test = df_test.sample(n=n_sam_test, random_state=42)
@@ -214,7 +231,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--real_data_num', type=int, default= 7, help='real JSON path')
+    parser.add_argument('--real_data_num', type=int, default=8, help='real JSON path')
     parser.add_argument('--save', default=False)
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     args = parser.parse_args()

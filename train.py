@@ -41,6 +41,7 @@ if __name__ == '__main__':
     model = create_model(opt)      # create a model given opt.model and other options
     model.setup(opt)               # regular setup: load and print networks; create schedulers
     visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
+    opt.vis = visualizer.vis
     total_iters = 0                # the total number of training iterations
     
     for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
@@ -72,10 +73,15 @@ if __name__ == '__main__':
                 if model.isDistil and opt.epoch_distil <= epoch:
                     dis_losses = model.get_current_dis_losses()
                     visualizer.print_current_losses(-1, epoch_iter, dis_losses, t_comp, t_data)
+                if model.isMask:
+                    mask_losses = model.get_current_mask_losses()
+                    visualizer.print_current_losses(-2, epoch_iter, mask_losses, t_comp, t_data)
                 if opt.display_id > 0:
                     visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
                     if model.isDistil and opt.epoch_distil <= epoch:
                         visualizer.plot_current_dis_losses(epoch, float(epoch_iter) / dataset_size, dis_losses)
+                    if model.isMask:
+                        visualizer.plot_current_mask_losses(epoch, float(epoch_iter) / dataset_size, mask_losses)
 
             if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
