@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('--cgan_num', type=str, default= 28)
     parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
     parser.add_argument('--name', type=str, default='distil_cgan', help='cgan, distil_cgan')
-    parser.add_argument('--save', default=True)
+    parser.add_argument('--save', default=False)
     args = parser.parse_args()
 
     main(args)
