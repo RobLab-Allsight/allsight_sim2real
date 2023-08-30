@@ -45,7 +45,7 @@ def main(args):
 
     random.seed(42)
     
-    from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_train_{args.data_num}_{args.data_kind}.json'
+    from_json_p = f'./datasets/data_Allsight/json_data/{args.data_type}_{args.data_set}_{args.data_num}_transformed.json'
     trans_folder_path = './datasets/data_Allsight/'
 
     df_data = pd.read_json(from_json_p).transpose()
@@ -61,9 +61,12 @@ def main(args):
                 delete_files_in_folder(folder_path)
             
     print("[INFO] ready to transfer")
-        
+    
+    if args.diff: imread_type = 'diff_frame'
+    else: imread_type = 'frame'
+    
     for idx in range(len(df_data)):
-        real_image = (cv2.imread(df_data['frame'][idx])).astype(np.uint8)
+        real_image = (cv2.imread(df_data[imread_type][idx])).astype(np.uint8)
         save_path1 = trans_folder_path + 'train' +args.folder_type + f'/{idx}.jpg'  # Specify the path where you want to save the image
         save_path2 = trans_folder_path + 'test' +args.folder_type + f'/{idx}.jpg'
         if 'train' in args.folder:
@@ -92,12 +95,13 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--data_type', type=str, default='sim', help='real, sim')
-    parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
     parser.add_argument('--data_num', type=int, default=8, help='from JSON path')
+    parser.add_argument('--data_set', type=str, default='train', help='train, test')
     parser.add_argument('--ref_num', type=int, default=0, help='number of each refrence frame in the final dataset')
     parser.add_argument('--folder_type', type=str, default='B', help='A, B')
     parser.add_argument('--samples', type=int, default=0, help='Number of samples, if 0 -> not sample take all')
     parser.add_argument('--folder', type=list, default=['train', 'test'], help='[train], [test], [train, test]')
+    parser.add_argument('--diff',  default=False, help='diff true = diff image (diff_frame)')
     args = parser.parse_args()
 
     main(args)

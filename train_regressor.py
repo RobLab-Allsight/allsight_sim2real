@@ -511,8 +511,8 @@ def main():
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
     parser.add_argument('--real_data_num', type=int, default= 7, help='real JSON path')
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
-    parser.add_argument('--cgan_num', default= 1, type=str)
-    parser.add_argument('--cgan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
+    parser.add_argument('--gan_num', default= 1, type=str)
+    parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
@@ -552,7 +552,7 @@ def main():
     ##################################
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'train_allsight_regressor/train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.cgan_num}',params['train_type']))
+                             'train_allsight_regressor/train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.gan_num}',params['train_type']))
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)

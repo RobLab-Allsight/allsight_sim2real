@@ -1,33 +1,32 @@
-Filter real data: (1 time)
+Filter real data: (1 time - manual)
     python3 data_process/filter_real_images.py 
 
-Merge sim data: (each time when we change the sim data)
+Merge sim data: (1 time - manual)
     python3 data_process/merge_json_sim.py 
 
 Transfer images to gan folders: 
-    python3 data_process/transfer_images.py --data_type real --data_num 7 --folder_type A --samples 0 --data_kind transformed
-    python3 data_process/transfer_images.py --data_type sim --data_num 7 --folder_type B --samples 0 --data_kind transformed
+    python3 data_process/transfer_images.py --data_type real --data_num 8 --folder_type A --samples 0
+    python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0
 
 Train CycleGAN:
     python3 train.py --dataroot ./datasets/data_Allsight/ --name exp_distil --model distil_cycle_gan --epoch_distil 1 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
 
 Test CycleGAN:
-    python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_3 --model cycle_gan --epoch # 
+    python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_50 --model cycle_gan --epoch latest
 
 Create json for the gan images:
-    python3 data_process/sim2gan_json.py --sim_data_num 5 --gan_num 2 --gan_type distil_cgan --data_kind transformed --gan_epoch latest --save True
+    python3 data_process/sim2gan_json.py --sim_data_num 8 --gan_num 50 --gan_type cgan --gan_epoch latest --save True
 
 Update ref frame in the gan json:
-    python3 data_process/update_ref_frame_gan.py --sim_data_num 7 --cgan_num 25 --gan_type distil_cgan
+    python3 data_process/update_ref_frame_gan.py --sim_data_num 8 --gan_num 50 --gan_type cgan
 
 Train and Test - regressor:
-    python3 train_regressor.py --train_type gan --sim_data_num 7 --real_data_num 7 --cgan_num 27 --gan_name distil_cgan --cgan_epoch latest --leds white --aug True
+    python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 0 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
 
 
-weekend runs: 
+weekend runs:
     zeus 2 (): python3 train.py --name allsight_50 --model cycle_gan --gpu_ids 1 --display_port 8096
     zeus 3 (): python3 train.py --name allsight_51 --model cycle_gan --gpu_ids 3 --display_port 8097
     curtis (): python3 train.py --name allsight_52 --model distil_cycle_gan --epoch_distil 70 --lambda_C 0.5
     osher  (): python3 train.py --name allsight_53 --model mask_cycle_gan --epoch_distil 70 --lambda_C 0.5
     alon   (): python3 train.py --name allsight_54 --model mask_cycle_gan --epoch_distil 210
-

@@ -37,8 +37,8 @@ def main(args):
     random.seed(42)
     
     model_G_path = f'./checkpoints/allsight_{args.gan_num}/{args.gan_epoch}_net_G_B.pth'
-    json_gan_p = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_{args.data_kind}.json'
-    json_gan_p_new = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_{args.data_kind}_ref.json'
+    json_gan_p = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_transformed.json'
+    json_gan_p_new = f'./datasets/data_Allsight/json_data/{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}_transformed_ref.json'
     copy_to_path = f'./datasets/data_Allsight/{args.gan_type}_data/test_{args.gan_num}_{args.gan_epoch}/ref_frames/'
     
     # Create the directory if it doesn't exist
@@ -74,7 +74,7 @@ def main(args):
             gan_ref_image = tensor2im(model_G(gan_im_tensor))
             gan_ref_image = cv2.cvtColor(gan_ref_image, cv2.COLOR_RGB2BGR)
             
-            save_path = os.path.join(copy_to_path, f'{args.gan_name}{idx}.jpg')
+            save_path = os.path.join(copy_to_path, f'{args.gan_type}{idx}.jpg')
             cv2.imwrite(save_path, gan_ref_image)
             df_data['ref_frame'][idx] = save_path
 

@@ -28,7 +28,7 @@ def get_image_number(image_path):
 
 def main(args):
     random.seed(42)
-    json_sim_p = f'./datasets/data_Allsight/json_data/sim_train_{args.sim_data_num}_{args.data_kind}.json'
+    json_sim_p = f'./datasets/data_Allsight/json_data/sim_train_{args.sim_data_num}_transformed.json'
     json_gan_name = f'{args.gan_type}_test_{args.gan_num}_{args.sim_data_num}_{args.gan_epoch}'
     images_folder_path = f'./results/allsight_{args.gan_num}/test_{args.gan_epoch}/images/'
     copy_to_path = f'./datasets/data_Allsight/{args.gan_type}_data/test_{args.gan_num}_{args.gan_epoch}/'
@@ -68,7 +68,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
-    parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
     parser.add_argument('--gan_num', type=str, default= 28)
     parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
     parser.add_argument('--gan_type', type=str, default='distil_cgan', help='cgan, distil_cgan, mask_cgan')
