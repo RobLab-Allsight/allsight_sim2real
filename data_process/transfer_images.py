@@ -96,11 +96,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--data_type', type=str, default='sim', help='real, sim')
     parser.add_argument('--data_num', type=int, default=8, help='from JSON path')
-    parser.add_argument('--data_set', type=str, default='train', help='train, test')
+    parser.add_argument('--data_set', type=str, default='test', help='train, test')
     parser.add_argument('--ref_num', type=int, default=0, help='number of each refrence frame in the final dataset')
     parser.add_argument('--folder_type', type=str, default='B', help='A, B')
     parser.add_argument('--samples', type=int, default=0, help='Number of samples, if 0 -> not sample take all')
-    parser.add_argument('--folder', type=list, default=['train', 'test'], help='[train], [test], [train, test]')
+    parser.add_argument('--folder', type=str, nargs="+",default=['train', 'test'], help='[train], [test], [train, test]')
     parser.add_argument('--diff',  default=False, help='diff true = diff image (diff_frame)')
     args = parser.parse_args()
 

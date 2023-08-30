@@ -7,6 +7,7 @@ Merge sim data: (1 time - manual)
 Transfer images to gan folders: 
     python3 data_process/transfer_images.py --data_type real --data_num 8 --folder_type A --samples 0
     python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0
+    python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0 --folder ['test'] --data_set test
 
 Train CycleGAN:
     python3 train.py --dataroot ./datasets/data_Allsight/ --name exp_distil --model distil_cycle_gan --epoch_distil 1 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
@@ -15,13 +16,13 @@ Test CycleGAN:
     python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_50 --model cycle_gan --epoch latest
 
 Create json for the gan images:
-    python3 data_process/sim2gan_json.py --sim_data_num 8 --gan_num 50 --gan_type cgan --gan_epoch latest --save True
+    python3 data_process/sim2gan_json.py --sim_data_num 8 --gan_num 5215 --gan_type distil_cgan --gan_epoch latest --save True
 
 Update ref frame in the gan json:
-    python3 data_process/update_ref_frame_gan.py --sim_data_num 8 --gan_num 50 --gan_type cgan
+    python3 data_process/update_ref_frame_gan.py --sim_data_num 8 --gan_num 52 --gan_type distil_cgan
 
 Train and Test - regressor:
-    python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 0 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
+    python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 52 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
 
 
 weekend runs:

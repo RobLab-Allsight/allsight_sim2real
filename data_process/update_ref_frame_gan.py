@@ -15,6 +15,8 @@ sys.path.insert(0, PATH)
 from util.util import tensor2im
 from models import networks, pre_process
 
+device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
+
 def is_image_file(filename):
     # Check if the file has an image extension
     image_extensions = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff")
@@ -59,6 +61,7 @@ def main(args):
                                     norm="instance",
                                     )
     model_G.load_state_dict(torch.load(model_G_path))
+    model_G = model_G.to(device)
     model_G.eval()
     
         
@@ -71,6 +74,7 @@ def main(args):
             sim_ref_image = cv2.cvtColor(sim_ref_image, cv2.COLOR_BGR2RGB).astype(np.uint8)
             
             gan_im_tensor = transform(sim_ref_image).unsqueeze(0)
+            gan_im_tensor = gan_im_tensor.to(device)
             gan_ref_image = tensor2im(model_G(gan_im_tensor))
             gan_ref_image = cv2.cvtColor(gan_ref_image, cv2.COLOR_RGB2BGR)
             
