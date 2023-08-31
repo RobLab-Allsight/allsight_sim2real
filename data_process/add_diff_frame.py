@@ -8,32 +8,32 @@ import json
 import argparse
 
 def circle_mask(size=(480, 480), border=0, fix=(0,0)):
-    """
-        used to filter center circular area of a given image,
-        corresponding to the AllSight surface area
-    """
-    m = np.zeros((size[1], size[0]))
-
-    m_center = (size[0] // 2 - fix[0], size[1] // 2 - fix[1])
-    m_radius = min(size[0], size[1]) // 2 - border - max(abs(fix[0]), abs(fix[1]))
-    m = cv2.circle(m, m_center, m_radius, 255, -1)
-    m /= 255
-    m = m.astype(np.float32)
-    mask = np.stack([m, m, m], axis=2)
-
+    mask = np.zeros((size[0], size[1]), dtype=np.uint8) 
+    mask = cv2.circle(mask, (int(size[0]/2 -1), int(size[1]/2 -1)), int(size[0]/2 -13), 1, thickness=-1)
+    mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
     return mask
 
-def foreground(img1, img2, offset=0.2):
-
-        img1 = np.float32(img1)
-        img2 = np.float32(img2)
-
-        diff = img1 - img2
-        diff = diff / 255.0 + offset
+def inv_foreground(ref_frame, diff, offset=0.0):
+        
+        ref_frame = np.float32(ref_frame)
+        diff = np.float32(diff)
+        diff = (diff*2 - 255) 
+        frame = ref_frame + diff
         mask = circle_mask()
-        diff[mask == 0] = 0
-
-        return diff
+        frame = (frame).astype(np.uint8)
+        frame = frame*mask
+        return frame
+    
+def foreground(frame, ref_frame, offset=0.0):
+        
+        frame = np.float32(frame)
+        ref_frame = np.float32(ref_frame)
+        diff_frame = frame - ref_frame
+        diff_frame = diff_frame  + 255
+        mask = circle_mask()
+        diff_frame = (diff_frame/2).astype(np.uint8)
+        diff_frame = diff_frame*mask
+        return diff_frame
 
 def main(args):
     random.seed(42)
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--data_type', type=str, default='real', help='real, sim')
     parser.add_argument('--data_set', type=str, default='train', help='train, test')
-    parser.add_argument('--data_num', type=int, default= 7, help='num JSON path')
+    parser.add_argument('--data_num', type=int, default= 8, help='num JSON path')
     parser.add_argument('--save', default=False)
     args = parser.parse_args()
 

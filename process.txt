@@ -4,10 +4,14 @@ Filter real data: (1 time - manual)
 Merge sim data: (1 time - manual)
     python3 data_process/merge_json_sim.py 
 
+Add diff frame:
+    python3 data_process/add_diff_frame.py --data_type real --data_set train --data_num 8 --save True
+
 Transfer images to gan folders: 
     python3 data_process/transfer_images.py --data_type real --data_num 8 --folder_type A --samples 0
     python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0
-    python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0 --folder ['test'] --data_set test
+    python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0 --folder test --data_set test
+    python3 data_process/transfer_images.py --data_type sim --data_num 8 --folder_type B --samples 0 --folder train test --data_set train --diff True
 
 Train CycleGAN:
     python3 train.py --dataroot ./datasets/data_Allsight/ --name exp_distil --model distil_cycle_gan --epoch_distil 1 --distil_policy linear --distil_slope 0.03 --lambda_C 0.5
@@ -28,6 +32,7 @@ Train and Test - regressor:
 weekend runs:
     zeus 2 (): python3 train.py --name allsight_50 --model cycle_gan --gpu_ids 1 --display_port 8096
     zeus 3 (): python3 train.py --name allsight_51 --model cycle_gan --gpu_ids 3 --display_port 8097
+    
     curtis (): python3 train.py --name allsight_52 --model distil_cycle_gan --epoch_distil 70 --lambda_C 0.5
     osher  (): python3 train.py --name allsight_53 --model mask_cycle_gan --epoch_distil 70 --lambda_C 0.5
     alon   (): python3 train.py --name allsight_54 --model mask_cycle_gan --epoch_distil 210
