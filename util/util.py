@@ -4,6 +4,7 @@ import torch
 import numpy as np
 from PIL import Image
 import os
+import cv2
 
 
 def tensor2im(input_image, imtype=np.uint8):
@@ -101,3 +102,36 @@ def mkdir(path):
     """
     if not os.path.exists(path):
         os.makedirs(path)
+
+def circle_mask(size=(224, 224), border=0, fix=(0,0)):
+    mask = np.zeros((size[0], size[1]), dtype=np.uint8) 
+    mask = cv2.circle(mask, (int(size[0]/2 -1), int(size[1]/2 -1)), int(size[0]/2 -7), 1, thickness=-1)
+    mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
+    return mask
+
+
+def inv_foreground(ref_frame, diff, offset=0.0):
+        
+        ref_frame = np.float32(ref_frame)
+        diff = np.float32(diff)
+        diff = (diff*2 - 255) 
+        frame = ref_frame + diff
+        
+        mask = circle_mask()
+        frame = (frame).astype(np.uint8)
+        frame = frame*mask
+
+        return frame
+    
+def foreground(frame, ref_frame, offset=0.0):
+        
+        frame = np.float32(frame)
+        ref_frame = np.float32(ref_frame)
+
+        diff_frame = frame - ref_frame
+        diff_frame = diff_frame  + 255
+        
+        mask = circle_mask()
+        diff_frame = (diff_frame/2).astype(np.uint8)
+        diff_frame = diff_frame*mask
+        return diff_frame

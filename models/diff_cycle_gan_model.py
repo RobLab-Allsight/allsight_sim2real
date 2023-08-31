@@ -2,6 +2,7 @@ import torch
 import itertools
 from util.image_pool import ImagePool
 from util.util import tensor2im
+from util.util import inv_foreground
 from .base_model import BaseModel
 from . import networks
 import re
@@ -133,7 +134,36 @@ class DiffCycleGANModel(BaseModel):
         self.real_A_num = int(match1.group(1))
         self.real_B_num = int(match2.group(1))
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        
+        self.real_A_ref = cv2.resize(cv2.cvtColor(cv2.imread(self.real_df['ref_frame'][self.real_A_num]), cv2.COLOR_BGR2RGB),(224,224))
+        self.real_A_frame = cv2.resize(cv2.cvtColor(cv2.imread(self.real_df['frame'][self.real_A_num]), cv2.COLOR_BGR2RGB),(224,224)) 
+        self.real_B_ref = cv2.resize(cv2.cvtColor(cv2.imread(self.sim_df['ref_frame'][self.real_B_num]), cv2.COLOR_BGR2RGB),(224,224))  ## need to load image
+        self.real_B_frame = cv2.resize(cv2.cvtColor(cv2.imread(self.sim_df['frame'][self.real_B_num]), cv2.COLOR_BGR2RGB),(224,224)) 
 
+    def get_composed_frames(self):
+        fake_b = tensor2im(self.fake_B)
+        fake_a = tensor2im(self.fake_A)
+        self.fake_B_comp = inv_foreground(self.real_A_ref, fake_b, offset=0.0) #.transpose([2, 0, 1])
+        self.rec_A_comp = inv_foreground(self.real_A_ref, tensor2im(self.rec_A), offset=0.0)
+        self.fake_A_comp = inv_foreground(self.real_B_ref, fake_a, offset=0.0)
+        self.rec_B_comp = inv_foreground(self.real_B_ref, tensor2im(self.rec_B), offset=0.0)
+        
+        # visual for debug
+        if  self.real_A_num % 10== 0:
+            self.img_to_vis(self.opt.vis, [self.real_A_frame, self.real_A_ref, self.real_A, fake_b, self.fake_B_comp],
+                            [self.real_B_frame, self.real_B_ref, self.real_B, fake_a, self.fake_A_comp], 11)
+           
+        #convert to tensor and send to the device
+        self.fake_B_comp = torch.from_numpy(self.fake_B_comp.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.rec_A_comp = torch.from_numpy(self.rec_A_comp.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.fake_A_comp = torch.from_numpy(self.fake_A_comp.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.rec_B_comp = torch.from_numpy(self.rec_B_comp.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        
+        self.real_A_ref = torch.from_numpy(self.real_A_ref.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.real_B_ref = torch.from_numpy(self.real_B_ref.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.real_B_frame = torch.from_numpy(self.real_B_frame.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        self.real_A_frame = torch.from_numpy(self.real_A_frame.transpose((2, 0, 1))).float().to(self.device).unsqueeze(0)
+        
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.fake_B = self.netG_A(self.real_A)  # G_A(A)
@@ -141,15 +171,16 @@ class DiffCycleGANModel(BaseModel):
         self.fake_A = self.netG_B(self.real_B)  # G_B(B)
         self.rec_B = self.netG_A(self.fake_A)   # G_A(G_B(B))
         
-        batch_x_ref = self.real_A # not included in single mode
+        self.get_composed_frames()
         
         if self.isDistil:
-            self.real_A_pose = self.real_regressor(self.real_A, batch_x_ref)
-            self.fake_B_pose = self.sim_regressor(self.fake_B, batch_x_ref)
-            self.rec_A_pose = self.real_regressor(self.rec_A, batch_x_ref)
-            self.real_B_pose = self.sim_regressor(self.real_B, batch_x_ref)
-            self.fake_A_pose = self.real_regressor(self.fake_A, batch_x_ref)
-            self.rec_B_pose = self.sim_regressor(self.rec_B, batch_x_ref)
+            self.real_A_pose = self.real_regressor(self.real_A_frame, self.real_A_ref)
+            self.fake_B_pose = self.sim_regressor(self.fake_B_comp, self.real_A_ref)
+            self.rec_A_pose = self.real_regressor(self.rec_A_comp, self.real_A_ref)
+            
+            self.real_B_pose = self.sim_regressor(self.real_B_frame, self.real_B_ref)
+            self.fake_A_pose = self.real_regressor(self.fake_A_comp, self.real_B_ref)
+            self.rec_B_pose = self.sim_regressor(self.rec_B_comp, self.real_B_ref)
         
     def backward_D_basic(self, netD, real, fake):
         """Calculate GAN loss for the discriminator
@@ -264,51 +295,40 @@ class DiffCycleGANModel(BaseModel):
         Returns:
             float: The combined distillation loss computed by summing six different distillation losses.
         """
-        if self.real_A_num > 4999:
-            self.loss_dis_Ars = 0
-            self.loss_dis_Asr = 0
-            self.loss_dis_Arr = 0 
-        else:     
-            self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * self.lambda_C
-            self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
-            self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C
-            
-        if self.real_B_num > 4999:    
-            self.loss_dis_Bsr = 0
-            self.loss_dis_Brs = 0
-            self.loss_dis_Bss = 0
-        else:    
-            self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_C
-            self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_C
-            self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+   
+        self.loss_dis_Ars = self.criterionDistil(self.real_A_pose, self.fake_B_pose) * self.lambda_C
+        self.loss_dis_Asr = self.criterionDistil(self.fake_B_pose, self.rec_A_pose) * 0.5 * self.lambda_C
+        self.loss_dis_Arr = self.criterionDistil(self.real_A_pose, self.rec_A_pose) * 0.5 * self.lambda_C   
+  
+        self.loss_dis_Bsr = self.criterionDistil(self.real_B_pose, self.fake_A_pose) * self.lambda_C
+        self.loss_dis_Brs = self.criterionDistil(self.fake_A_pose, self.rec_B_pose) * 0.5 * self.lambda_C
+        self.loss_dis_Bss = self.criterionDistil(self.real_B_pose, self.rec_B_pose) * 0.5 * self.lambda_C
         
         return self.loss_dis_Ars + self.loss_dis_Asr + self.loss_dis_Arr + self.loss_dis_Bsr + self.loss_dis_Brs + self.loss_dis_Bss 
     
-    def img_to_vis(self, vis, tens_imgs):
+
+    
+    def img_to_vis(self, vis, tens_imgs, tens_imgs2 ,channel):
+        images = []
         
-        tens_A = tens_imgs[0]*tens_imgs[1]
-        tens_BB = tens_imgs[4]*tens_imgs[1]
-        tens_A = tensor2im(tens_A)
-        tens_A = tens_A.transpose([2, 0, 1])
-        # Convert tensor images to NumPy arrays
-        img_A = tensor2im(tens_imgs[0])
-        img_A = img_A.transpose([2, 0, 1])
-        # img_B = tensor2im(tens_imgs[2])
-        # img_B = img_B.transpose([2, 0, 1])
-        mask_A = tensor2im(tens_imgs[1])
-        mask_A = mask_A.transpose([2, 0, 1])
-        img_A_b = tensor2im(tens_BB)
-        img_A_b = img_A_b.transpose([2, 0, 1])
-        # mask_B = tensor2im(tens_imgs[3])
-        # mask_B = mask_B.transpose([2, 0, 1])
+        # Process both rows of tensors
+        for tensor_row in [tens_imgs, tens_imgs2]:
+            row_images = []
+            for tensor in tensor_row:
+                img = tensor2im(tensor)
+                img = img.transpose([2, 0, 1])
+                row_images.append(img)
+            
+            images.append(row_images)
         
-        images = [img_A, mask_A, tens_A, img_A_b]#, img_B, mask_B]
-        # Create a 2x2 grid
-        grid_image = np.concatenate(images, axis=2)  # Combine horizontally
-        # grid_image = np.concatenate(grid_image, axis=1)  # Combine vertically
+        # Create a 2x4 grid
+        grid_images = [np.concatenate(images[0], axis=2),
+                       np.concatenate(images[1], axis=2)]
+        
+        grid_image = np.concatenate(grid_images, axis=1)  # Combine horizontally
 
         # Send the grid image data to Visdom for display
-        vis.image(grid_image, win = 10)
+        vis.image(grid_image, win=channel)
         return
     
     def get_mask_loss_combined(self):
@@ -319,39 +339,32 @@ class DiffCycleGANModel(BaseModel):
                 float: The combined mask loss computed by summing six different mask losses.
             """
             lambda_D = self.opt.lambda_D
-            if self.real_A_num > 4999: mask_A = 1
-            else: 
-                px_py_r_real = self.real_df['contact_px'][self.real_A_num] # from df + calib with resize of img
-                px_py_r_real = (np.array(px_py_r_real)*self.img_dim)//480 
-                # px_py_r_real[2] = px_py_r_real[2] * 2 
-                mask_A = np.ones((self.img_dim, self.img_dim), dtype=np.uint8)
-                mask_A = cv2.circle(mask_A, (int(px_py_r_real[0]), int(px_py_r_real[1])), int(px_py_r_real[2]), 0, thickness=-1)
-                mask_A = torch.tensor(mask_A, dtype=torch.uint8).to(device=self.real_A.device)
-                mask_A = mask_A.unsqueeze(0).expand(1, 3, -1, -1)
-            if self.real_B_num > 4999: mask_B = 1    
-            else:
-                px_py_r_sim = self.sim_df['contact_px'][self.real_B_num]
-                px_py_r_sim = (np.array(px_py_r_sim)*self.img_dim)//480 
-                px_py_r_sim[2] = px_py_r_sim[2] * 2 
-                mask_B = np.ones((self.img_dim, self.img_dim), dtype=np.uint8) 
-                mask_B = cv2.circle(mask_B, (int(px_py_r_sim[0]), int(px_py_r_sim[1])), int(px_py_r_sim[2]), 0, thickness=-1)
-                mask_B = torch.tensor(mask_B, dtype=torch.uint8).to(device=self.real_B.device) 
-                mask_B = mask_B.unsqueeze(0).expand(1, 3, -1, -1)    
+ 
+            px_py_r_real = self.real_df['contact_px'][self.real_A_num] # from df + calib with resize of img
+            px_py_r_real = (np.array(px_py_r_real)*self.img_dim)//480 
+            px_py_r_real[2] = px_py_r_real[2] * 2 
+            mask_A = np.ones((self.img_dim, self.img_dim), dtype=np.uint8)
+            mask_A = cv2.circle(mask_A, (int(px_py_r_real[0]), int(px_py_r_real[1])), int(px_py_r_real[2]), 0, thickness=-1)
+            mask_A = torch.tensor(mask_A, dtype=torch.uint8).to(device=self.real_A.device)
+            mask_A = mask_A.unsqueeze(0).expand(1, 3, -1, -1)
+
+            px_py_r_sim = self.sim_df['contact_px'][self.real_B_num]
+            px_py_r_sim = (np.array(px_py_r_sim)*self.img_dim)//480 
+            px_py_r_sim[2] = px_py_r_sim[2] * 2 
+            mask_B = np.ones((self.img_dim, self.img_dim), dtype=np.uint8) 
+            mask_B = cv2.circle(mask_B, (int(px_py_r_sim[0]), int(px_py_r_sim[1])), int(px_py_r_sim[2]), 0, thickness=-1)
+            mask_B = torch.tensor(mask_B, dtype=torch.uint8).to(device=self.real_B.device) 
+            mask_B = mask_B.unsqueeze(0).expand(1, 3, -1, -1)    
                 
             self.loss_mask_Ars = self.criterionMask(self.real_A*mask_A, self.fake_B*mask_A) * lambda_D
-            self.loss_mask_Asr = self.criterionMask(self.fake_B*mask_A, self.rec_A*mask_A) * 0.5 * lambda_D 
-            self.loss_mask_Arr = self.criterionMask(self.real_A*mask_A, self.rec_A*mask_A) * 0.5 * lambda_D
             
             self.loss_mask_Bsr = self.criterionMask(self.real_B*mask_B, self.fake_A*mask_B) * lambda_D
-            self.loss_mask_Brs = self.criterionMask(self.fake_A*mask_B, self.rec_B*mask_B) * 0.5 * lambda_D 
-            self.loss_mask_Bss = self.criterionMask(self.real_B*mask_B, self.rec_B*mask_B) * 0.5 * lambda_D
             
             # for debug
-            if self.real_A_num < 4999 and self.real_A_num % 700== 0:
-                self.img_to_vis(self.opt.vis, [self.real_A, mask_A, self.real_B, mask_B, self.fake_B])
-                # self.img_to_vis(self.opt.vis, [self.real_B, mask_B, self.real_A, mask_A, self.fake_A])
-            
-            return self.loss_mask_Ars+self.loss_mask_Asr+self.loss_mask_Arr+self.loss_mask_Bsr+self.loss_mask_Brs+self.loss_mask_Bss 
+            # if  self.real_A_num % 100== 0:
+            #     self.img_to_vis(self.opt.vis, [self.real_A, mask_A, self.real_A*mask_A, self.fake_B*mask_A], [self.real_B, mask_B, self.real_B*mask_B, self.fake_A*mask_B], 10)
+           
+            return self.loss_mask_Ars+self.loss_mask_Bsr
 
     def distil_policy_rule(self, policy):
         """
