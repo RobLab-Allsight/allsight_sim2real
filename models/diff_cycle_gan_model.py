@@ -149,7 +149,7 @@ class DiffCycleGANModel(BaseModel):
         self.rec_B_comp = inv_foreground(self.real_B_ref, tensor2im(self.rec_B), offset=0.0)
         
         # visual for debug
-        if  self.real_A_num % 10== 0:
+        if  self.real_A_num % 300== 0:
             self.img_to_vis(self.opt.vis, [self.real_A_frame, self.real_A_ref, self.real_A, fake_b, self.fake_B_comp],
                             [self.real_B_frame, self.real_B_ref, self.real_B, fake_a, self.fake_A_comp], 11)
            
