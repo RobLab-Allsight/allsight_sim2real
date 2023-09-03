@@ -38,6 +38,8 @@ def main(args):
     if not os.path.exists(copy_to_path):
         os.makedirs(copy_to_path)
 
+    if args.diff: imread_type = 'diff_frame'
+    else: imread_type = 'frame'
 
     df_data = pd.read_json(json_sim_p).transpose()
     df_data['old_frame'] = df_data['frame']
@@ -54,7 +56,7 @@ def main(args):
             save_path = os.path.join(copy_to_path, f'{args.gan_type}{idx}.jpg')
             if idx<len(df_data):
                 cv2.imwrite(save_path, real_image)
-                df_data['frame'][idx] = save_path
+                df_data[imread_type][idx] = save_path
 
         # Save real df to json
         to_dict = {}
@@ -69,9 +71,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
     parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
     parser.add_argument('--gan_num', type=str, default= 28)
-    parser.add_argument('--data_set', type=str, default='test', help='train, test')
+    parser.add_argument('--data_set', type=str, default='train', help='train, test')
     parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
     parser.add_argument('--gan_type', type=str, default='distil_cgan', help='cgan, distil_cgan, mask_cgan')
+    parser.add_argument('--diff',  default=False, help='diff true = diff image (diff_frame)')
     parser.add_argument('--save', default=False)
     args = parser.parse_args()
 
