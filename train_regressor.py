@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR  # Learning rate schedulers
 from train_allsight_regressor.models import PreTrainedModel, PreTrainedModelWithRef
 from train_allsight_regressor.vis_utils import data_for_cylinder_along_z, data_for_sphere_along_z, set_axes_equal
-from train_allsight_regressor.datasets import TactileSimDataset, output_map, get_buffer_paths_sim
+from train_allsight_regressor.datasets import TactileSimDataset, output_map, get_buffer_paths_sim, CircleMaskTransform
 from train_allsight_regressor.surface import create_finger_geometry
 from train_allsight_regressor.geometry import convert_quat_wxyz_to_xyzw, convert_quat_xyzw_to_wxyz
 from transformations import quaternion_matrix
@@ -131,10 +131,11 @@ class Trainer(object):
         
         train_df, valid_df = train_test_split(df_data_train, test_size=0.22, shuffle=True)
         test_df = df_data_test
-
+        
         self.train_transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((self.params['image_size'], self.params['image_size'])),
+            CircleMaskTransform(size=(self.params['image_size'], self.params['image_size']),border=10),
             # transforms.RandomChoice([
             #     transforms.ColorJitter(brightness=0.05, contrast=0.05, saturation=0.05, hue=0.05),
             # ]),
@@ -146,6 +147,7 @@ class Trainer(object):
         self.aug_transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((self.params['image_size'], self.params['image_size'])),
+            CircleMaskTransform(size=(self.params['image_size'], self.params['image_size']),border=10),
             transforms.RandomApply([transforms.ColorJitter(0.2, 0.2, 0.2, 0.1)], p=0.5),
             transforms.RandomGrayscale(p=0.2),
             transforms.RandomRotation(3),  # rotate +/- 10 degrees
@@ -163,26 +165,27 @@ class Trainer(object):
         self.test_transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((self.params['image_size'], self.params['image_size'])),
+            CircleMaskTransform(size=(self.params['image_size'], self.params['image_size']),border=10),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406],
                                  [0.229, 0.224, 0.225])
         ])
 
         self.originalset = TactileSimDataset(self.model_params, train_df, output_type, self.train_transform,
-                                          apply_mask=True)
+                                          apply_mask=False)
 
         if self.params['aug']:
-            self.augset = TactileSimDataset(self.model_params, train_df, output_type, self.aug_transform, apply_mask=True)
+            self.augset = TactileSimDataset(self.model_params, train_df, output_type, self.aug_transform, apply_mask=False)
             self.trainset = torch.utils.data.ConcatDataset([self.originalset, self.augset])
         else:
             self.trainset = self.originalset
 
-        self.validset = TactileSimDataset(self.model_params, valid_df, output_type, self.test_transform, apply_mask=True)
-        self.testset = TactileSimDataset(self.model_params, test_df, output_type, self.test_transform, apply_mask=True)
+        self.validset = TactileSimDataset(self.model_params, valid_df, output_type, self.test_transform, apply_mask=False)
+        self.testset = TactileSimDataset(self.model_params, test_df, output_type, self.test_transform, apply_mask=False)
 
-        self.trainloader = DataLoader(self.trainset, batch_size=self.params['batch_size'], shuffle=True, drop_last=True)
-        self.validloader = DataLoader(self.validset, batch_size=self.params['batch_size'], shuffle=True, drop_last=True)
-        self.testloader = DataLoader(self.testset, batch_size=self.params['batch_size'], shuffle=True, drop_last=True)
+        self.trainloader = DataLoader(self.trainset, batch_size=self.params['batch_size'], shuffle=True, drop_last=False)
+        self.validloader = DataLoader(self.validset, batch_size=self.params['batch_size'], shuffle=True, drop_last=False)
+        self.testloader = DataLoader(self.testset, batch_size=self.params['batch_size'], shuffle=True, drop_last=False)
 
         print(f'Train set length is {len(self.trainset)}')
         print(f'Valid set length is {len(self.validset)}')
@@ -508,8 +511,8 @@ def main():
     
     parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
-    parser.add_argument('--sim_data_num', type=int, default= 7, help='sim JSON path')
-    parser.add_argument('--real_data_num', type=int, default= 7, help='real JSON path')
+    parser.add_argument('--sim_data_num', type=int, default= 8, help='sim JSON path')
+    parser.add_argument('--real_data_num', type=int, default= 8, help='real JSON path')
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
     parser.add_argument('--gan_num', default= 1, type=str)
     parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
