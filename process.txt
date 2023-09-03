@@ -26,7 +26,7 @@ Update ref frame in the gan json:
     python3 data_process/update_ref_frame_gan.py --sim_data_num 8 --gan_num 52 --gan_type distil_cgan
 
 Train and Test - regressor:
-    python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 52 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
+    python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 0 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
 
 
 weekend runs:

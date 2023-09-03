@@ -72,20 +72,27 @@ def square_cut(img, size=480):
     return padded_img
 
 
-def circle_mask(size=(640, 480), border=0):
-    """
-        used to filter center circular area of a given image,
-        corresponding to the AllSight surface area
-    """
-    m = np.zeros((size[1], size[0]))
+# def circle_mask(size=(640, 480), border=0):
+#     """
+#         used to filter center circular area of a given image,
+#         corresponding to the AllSight surface area
+#     """
+#     m = np.zeros((size[1], size[0]))
+#     m_center = (size[0] // 2, size[1] // 2)
+#     m_radius = min(size[0], size[1]) // 2 - border
+#     m = cv2.circle(m, m_center, m_radius, 255, -1)
+#     m /= 255
+#     m = m.astype(np.float32)
+#     mask = np.stack([m, m, m], axis=2)
+#     return mask
+
+def circle_mask(size=(480, 480), border=10, fix=(0,0)):
+    mask = np.zeros((size[0], size[1]), dtype=np.uint8) 
     m_center = (size[0] // 2, size[1] // 2)
     m_radius = min(size[0], size[1]) // 2 - border
-    m = cv2.circle(m, m_center, m_radius, 255, -1)
-    m /= 255
-    m = m.astype(np.float32)
-    mask = np.stack([m, m, m], axis=2)
+    mask = cv2.circle(mask, m_center, m_radius, 1, thickness=-1)
+    mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
     return mask
-
 
 def get_coords(x, y, angle, imwidth, imheight):
     x1_length = (imwidth - x) / (math.cos(angle) + 1e-6)

@@ -169,16 +169,16 @@ class Trainer(object):
         ])
 
         self.originalset = TactileSimDataset(self.model_params, train_df, output_type, self.train_transform,
-                                          apply_mask=False)
+                                          apply_mask=True)
 
         if self.params['aug']:
-            self.augset = TactileSimDataset(self.model_params, train_df, output_type, self.aug_transform, apply_mask=False)
+            self.augset = TactileSimDataset(self.model_params, train_df, output_type, self.aug_transform, apply_mask=True)
             self.trainset = torch.utils.data.ConcatDataset([self.originalset, self.augset])
         else:
             self.trainset = self.originalset
 
-        self.validset = TactileSimDataset(self.model_params, valid_df, output_type, self.test_transform, apply_mask=False)
-        self.testset = TactileSimDataset(self.model_params, test_df, output_type, self.test_transform, apply_mask=False)
+        self.validset = TactileSimDataset(self.model_params, valid_df, output_type, self.test_transform, apply_mask=True)
+        self.testset = TactileSimDataset(self.model_params, test_df, output_type, self.test_transform, apply_mask=True)
 
         self.trainloader = DataLoader(self.trainset, batch_size=self.params['batch_size'], shuffle=True, drop_last=True)
         self.validloader = DataLoader(self.validset, batch_size=self.params['batch_size'], shuffle=True, drop_last=True)

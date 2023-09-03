@@ -266,8 +266,8 @@ class TactileSimDataset(torch.utils.data.Dataset):
         # self.X_ref = ['/'.join(df.iloc[0].frame.split('/')[:-1]) + '/ref_frame.jpg' for idx in range(self.df.shape[0])]
         # self.X_ref = self.X
         
-        # if self.apply_mask:
-        #     self.mask = circle_mask((self.w, self.h))
+        if self.apply_mask:
+            self.mask = circle_mask((self.w, self.h))
 
         # if pc_name != 'osher':
         #     self.X = [f.replace('osher', 'roblab20') for f in self.X]
