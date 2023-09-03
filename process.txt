@@ -20,10 +20,13 @@ Test CycleGAN:
     python3 test.py --dataroot ./datasets/data_Allsight/ --name allsight_50 --model cycle_gan --epoch latest
 
 Create json for the gan images:
-    python3 data_process/sim2gan_json.py --sim_data_num 8 --gan_num 5215 --gan_type distil_cgan --gan_epoch latest --save True
+    python3 data_process/sim2gan_json.py --sim_data_num 8 --gan_num 5215 --gan_type distil_cgan --gan_epoch latest --save True --diff True
 
 Update ref frame in the gan json:
     python3 data_process/update_ref_frame_gan.py --sim_data_num 8 --gan_num 52 --gan_type distil_cgan
+
+Update compose frame in the gan json for diff:
+    python3 data_process/update_compose_frame_gan.py --sim_data_num 8 --gan_num 60 --gan_type cgan --gan_epoch 30 --save True 
 
 Train and Test - regressor:
     python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 0 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
