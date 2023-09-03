@@ -103,7 +103,7 @@ def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def circle_mask(size=(480, 480), border=10, fix=(0,0)):
+def circle_mask(size=(224, 224), border=10, fix=(0,0)):
     mask = np.zeros((size[0], size[1]), dtype=np.uint8) 
     m_center = (size[0] // 2, size[1] // 2)
     m_radius = min(size[0], size[1]) // 2 - border
