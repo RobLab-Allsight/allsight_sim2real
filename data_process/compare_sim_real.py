@@ -12,15 +12,15 @@ from scipy import spatial
 
 # Define the parameters
 pc_name = os.getlogin()
-leds = 'rrrgggbbb'
+leds = 'white'
 gel = 'clear'
 start_sample_time = 2
 indenter = ['sphere3']
-save = False
-sim_data_num = 4
-real_data_num = 5
-name = f'sim_train_5_'
-save_name = f'./datasets/data_Allsight/json_data/{name}'
+save = True
+sim_data_num = 8
+real_data_num = 8
+name = f'sim_train_8_paired'
+save_name = f'./datasets/data_Allsight/json_data/sim_train_{sim_data_num}_aligned'
 
 
 # paths of the real and sim dataframes
@@ -79,7 +79,7 @@ def find_next_kni(t, ind_to_keep):
     
 ind_to_keep = []
 
-for sample in range(len(pose_real)):
+for sample in range(1000):
     t = 0
     real_xyz = pose_real[sample]
     real_image = (cv2.imread(df_data_real['frame'][sample].replace("osher", pc_name))).astype(np.uint8)

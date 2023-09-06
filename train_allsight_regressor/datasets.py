@@ -9,7 +9,7 @@ import pandas as pd
 import random
 from glob import glob
 import json
-
+from PIL import Image
 np.set_printoptions(precision=4)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # cuda or cpu
@@ -102,7 +102,7 @@ def get_buffer_paths_sim(leds, indenter, params):
     elif params['train_type'] == 'sim':
         train_path = './datasets/data_Allsight/json_data/sim_train_{}_transformed.json'.format(params['sim_data_num'])
     elif params['train_type'] == 'gan':
-        train_path = './datasets/data_Allsight/json_data/{}_test_{}_{}_{}_transformed.json'.format(params['gan_name'],params['cgan_num'],params['sim_data_num'],params['cgan_epoch']) 
+        train_path = './datasets/data_Allsight/json_data/{}_test_{}_{}_{}_transformed_ref.json'.format(params['gan_name'],params['gan_num'],params['sim_data_num'],params['gan_epoch']) 
     else:
         print('No data provided')
     test_path = './datasets/data_Allsight/json_data/real_test_{}_transformed.json'.format(params['real_data_num'])  
@@ -266,8 +266,8 @@ class TactileSimDataset(torch.utils.data.Dataset):
         # self.X_ref = ['/'.join(df.iloc[0].frame.split('/')[:-1]) + '/ref_frame.jpg' for idx in range(self.df.shape[0])]
         # self.X_ref = self.X
         
-        # if self.apply_mask:
-        #     self.mask = circle_mask((self.w, self.h))
+        if self.apply_mask:
+            self.mask = circle_mask((self.w, self.h))
 
         # if pc_name != 'osher':
         #     self.X = [f.replace('osher', 'roblab20') for f in self.X]
@@ -351,6 +351,7 @@ class TactileTouchDataset(torch.utils.data.Dataset):
         if self.apply_mask:
             self.mask = circle_mask((self.w, self.h))
 
+
         self.ref_frame = (cv2.cvtColor(cv2.imread(ref_path), cv2.COLOR_BGR2RGB) * self.mask).astype(np.uint8)
         self.ref_frame = self.transform(np.array(self.ref_frame)).to(device)
 
@@ -396,3 +397,33 @@ class TactileTouchDataset(torch.utils.data.Dataset):
         y = torch.Tensor([self.Y[idx]])
 
         return img, y
+
+class CircleMaskTransform(object):
+    """Apply a circular mask to an input image using OpenCV.
+
+    Args:
+        size (tuple): Desired size of the output mask.
+        border (int): Border thickness of the circular mask.
+    """
+
+    def __init__(self, size=(224, 224), border=10):
+        self.size = size
+        self.border = border
+
+    def __call__(self, image):
+        # Convert PIL image to NumPy array
+        image = np.array(image)
+
+        mask = np.zeros((self.size[0], self.size[1]), dtype=np.uint8)
+        m_center = (self.size[0] // 2, self.size[1] // 2)
+        m_radius = min(self.size[0], self.size[1]) // 2 - self.border
+        mask = cv2.circle(mask, m_center, m_radius, 1, thickness=-1)
+        mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
+
+        # Apply the circular mask to the input image
+        masked_image = np.multiply(image, mask)
+
+        # Convert back to PIL image
+        masked_image = Image.fromarray(masked_image.astype('uint8'), 'RGB')
+
+        return masked_image

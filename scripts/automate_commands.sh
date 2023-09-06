@@ -23,7 +23,7 @@ python3 train.py --name allsight_distil_27 --model distil_cycle_gan --epoch_dist
 python3 test.py --dataroot ./datasets/data_Allsight/ --name exp_distil --model distil_cycle_gan --epoch latest
 
 # Create JSON for GAN Images
-python3 data_process/sim2gan_json.py --sim_data_num 7 --cgan_num 0 --name distil_cgan --data_kind tranformed --cgan_epoch latest --save True
+python3 data_process/sim2gan_json.py --sim_data_num 8 --cgan_num 52 --name distil_cgan --data_kind tranformed --cgan_epoch latest --save True
 
 # Train and Test - Regressor
 python3 train_regressor.py --train_type gan --sim_data_num 7 --real_data_num 7 --cgan_num 0 --gan_name distil_cgan --cgan_epoch latest --input_type with_ref_6c --leds white --model_name efficientnet_b0 --aug True
