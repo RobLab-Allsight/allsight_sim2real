@@ -30,12 +30,20 @@ Update compose frame in the gan json for diff:
 
 Train and Test - regressor:
     python3 train_regressor.py --train_type sim --sim_data_num 8 --real_data_num 8 --gan_num 0 --gan_name distil_cgan --gan_epoch latest --input_type with_ref_6c --leds white --aug True
-
+ 
 
 weekend runs:
-    zeus 2 (): python3 train.py --name allsight_50 --model cycle_gan --gpu_ids 1 --display_port 8096
-    zeus 3 (): python3 train.py --name allsight_51 --model cycle_gan --gpu_ids 3 --display_port 8097
+    zeus 2 (): python3 train.py --name allsight_46 --model mask_cycle_gan --gpu_ids 1 --display_port 8091 --epoch_distil 70 --lambda_C 0.7 --lambda_D 20
+    zeus 3 (): python3 train.py --name allsight_47 --model mask_cycle_gan --gpu_ids 2 --display_port 8092 --epoch_distil 120 --lambda_C 0.7 --lambda_D 25
+    zeus 3 (): python3 train.py --name allsight_48 --model mask_cycle_gan --gpu_ids 3 --display_port 8093 --epoch_distil 100 --lambda_C 0.7 --lambda_D 20
     
     alon   (): python3 train.py --name allsight_60 --model cycle_gan 
     osher  (): python3 train.py --name allsight_61 --model diff_cycle_gan --epoch_distil 70 --lambda_C 0.5
     curtis (): python3 train.py --name allsight_62 --model diff_cycle_gan --epoch_distil 70 --lambda_C 0.5
+    osher  (): python3 train.py --name allsight_63 --model diff_cycle_gan --n_epochs 40 --n_epochs_decay 30 --epoch_distil 35 --lambda_C 0.1 --lambda_A 25 --lambda_B 25 --lambda_D 20 --lr 0.00001
+    alon   (): python3 train.py --name allsight_64 --model diff_cycle_gan --n_epochs 40 --n_epochs_decay 30 --lambda_C 0.5 --epoch_distil 35 --lambda_A 20 --lambda_B 20 --lambda_D 23 --lr 0.0001
+    alon2  (): python3 train.py --name allsight_65 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --lambda_C 0.1 --epoch_distil 35 --lambda_A 20 --lambda_B 20 --lambda_D 35 --lr 0.00005
+    osher2 (): python3 train.py --name allsight_66 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --distil_policy linear --distil_slope 0.01 --lambda_C 0.01 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002  
+    osher3 (): python3 train.py --name allsight_67 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --distil_policy linear --distil_slope 0.015 --lambda_C 0.005 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002
+    curtis2(): python3 train.py --name allsight_68 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002
+    alon3  (): python3 train.py --name allsight_69 --model diff_cycle_gan --n_epochs 40 --n_epochs_decay 15 --epoch_distil 45 --lambda_C 0.05 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002 --lambda_identity 0.0 

@@ -46,8 +46,9 @@ class Trainer(object):
         leds = params['leds']
         indenter = ['sphere3', 'sphere4', 'sphere5', 'cube', 'rect', 'ellipse']
         
-        buffer_paths_to_train = get_buffer_paths_sim(leds, indenter, params)
-
+        reg_path = './train_allsight_regressor/train_history/real_8_sim_8_gan_56/gan/train_pose_resnet18_with_ref_6c_aug_03-09-2023_14-48-08/model.pth'
+        buffer_paths_to_train = './datasets/data_Allsight/json_data/real_test_{}_transformed.json'.format(params['real_data_num'])  
+                
         #####################
         ## SET AGENT PARAMS
         #####################
@@ -70,16 +71,18 @@ class Trainer(object):
             'input_type': params['input_type'],
             'leds': leds,
             'indenter': indenter,
+            
         }
 
         self.finger_geometry = create_finger_geometry()
         self.tree = spatial.KDTree(self.finger_geometry[0])
-        self.prepare_data(buffer_paths_to_train, params['output'])
+        self.prepare_data(buffer_paths_to_train, params['output'], params['ft_samples'])
 
         if params['input_type'] == 'single':
             self.model = PreTrainedModel(params['model_name'], output_map[params['output']]).to(device)
         elif params['input_type'] == 'with_ref_6c':
             self.model = PreTrainedModelWithRef(params['model_name'], output_map[params['output']]).to(device)
+            self.model.load_state_dict(torch.load(reg_path, map_location=device))
         else:
             assert 'which model you want to use?'
 
@@ -92,7 +95,8 @@ class Trainer(object):
             dic_items = self.originalset.data_statistics.items()
             new_dict = {key: value.tolist() for key, value in dic_items}
             json.dump(new_dict, fp, indent=3)
-
+        
+        # Create the optimizer
         self.optimizer = getattr(torch.optim, self.model_params['optimizer'])(self.model.parameters(),
                                                                               lr=params['learning_rate'])
 
@@ -109,28 +113,13 @@ class Trainer(object):
         
         self.best_model = copy.deepcopy(self.model)
 
-    def prepare_data(self, paths, output_type):
+    def prepare_data(self, paths, output_type,ft_samples):
 
-        # for idx, p in enumerate(paths):
-        #     if idx == 0:
-        #         df_data = pd.read_json(p).transpose()
-        #     else:
-        #         df_data = pd.concat([df_data, pd.read_json(p).transpose()], axis=0)
-        for idx, p in enumerate(paths):
-            if idx == 0:
-                df_data_train = pd.read_json(p).transpose()
-            else:
-                df_data_test = pd.read_json(p).transpose() 
+        df_data_test = pd.read_json(paths).transpose() 
+              
+        train_df, test_df = train_test_split(df_data_test, test_size=0.5, shuffle=True, random_state=42)
         
-        # repair ref frame paths
-        if self.params['input_type'] != 'single':           
-            df_data_train['ref_frame'] = df_data_train['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
-            df_data_test['ref_frame'] = df_data_test['ref_frame'].str.replace('/home/osher/catkin_ws/src/allsight/dataset/', './datasets/data_Allsight/all_data/allsight_dataset/')
-        # train_df, remain_df = train_test_split(df_data, test_size=0.22, shuffle=True)
-        # valid_df, test_df = train_test_split(remain_df, test_size=0.5, shuffle=True)
-        
-        train_df, valid_df = train_test_split(df_data_train, test_size=0.22, shuffle=True)
-        test_df = df_data_test
+        train_df, valid_df = train_test_split(train_df, train_size=ft_samples, shuffle=True)
         
         self.train_transform = transforms.Compose([
             transforms.ToPILImage(),
@@ -201,6 +190,8 @@ class Trainer(object):
 
         COSTS, EVAL_COSTS, BATCH_TRAIN_RMSE_LOSS, epoch_cost, eval_cost = [], [], [], [], []
         BATCH_SIZE = self.model_params['batch_size']
+        
+        self.run_test_loop()
         
         for epoch in range(epochs):
 
@@ -507,20 +498,24 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--epoch', '-ep', type=int, default=20)
+    parser.add_argument('--epoch', '-ep', type=int, default=10)
     
-    parser.add_argument('--train_type', '-dt', type=str, default='real') # real, sim, gan
+    
+    parser.add_argument('--ft_samples', type=float, default= 0.35, help='real JSON path')
+    
+    
+    parser.add_argument('--train_type', '-dt', type=str, default='gan') # real, sim, gan
     parser.add_argument('--data_kind', type=str, default='transformed', help='transformed, aligned')
     parser.add_argument('--sim_data_num', type=int, default= 8, help='sim JSON path')
     parser.add_argument('--real_data_num', type=int, default= 8, help='real JSON path')
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
-    parser.add_argument('--gan_num', default= 1, type=str)
+    parser.add_argument('--gan_num', default= 56, type=str)
     parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)
     parser.add_argument('--model_name', '-mn', type=str, default='resnet18') # 'efficientnet_b0'
-    parser.add_argument('--input_type', '-it', type=str, default='single') #with_ref_6c, single
+    parser.add_argument('--input_type', '-it', type=str, default='with_ref_6c') #with_ref_6c, single
     parser.add_argument('--leds', '-ld', type=str, default='white') # rrrgggbbb
 
     parser.add_argument('--norm_method', '-im', type=str, default='meanstd')
@@ -531,7 +526,7 @@ def main():
 
     parser.add_argument('--image_size', '-iz', type=int, default=224)
     parser.add_argument('--batch_size', '-b', type=int, default=16)
-    parser.add_argument('--learning_rate', '-lr', type=float, default=0.001)
+    parser.add_argument('--learning_rate', '-lr', type=float, default=0.0002)
 
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--use_gpu', '-gpu', default=True)
@@ -555,7 +550,7 @@ def main():
     ##################################
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'train_allsight_regressor/train_history/{}/{}/'.format(f'real_{args.real_data_num}_sim_{args.sim_data_num}_gan_{args.gan_num}',params['train_type']))
+                             'train_allsight_regressor/train_history/finetune/{}_{}/{}/'.format(f'{args.ft_samples}',f'real_{args.real_data_num}_gan_{args.gan_num}',params['train_type']))
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
