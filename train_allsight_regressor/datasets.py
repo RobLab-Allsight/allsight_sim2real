@@ -246,7 +246,7 @@ class TactileDataset(torch.utils.data.Dataset):
 
 
 class TactileSimDataset(torch.utils.data.Dataset):
-    def __init__(self, params, df, output_type='pose',
+    def __init__(self, params, df, output_type='pose', frame_type = 'frame',
                  transform=None, apply_mask=True, remove_ref=False, statistics=None):
 
         self.df = df
@@ -258,7 +258,11 @@ class TactileSimDataset(torch.utils.data.Dataset):
         self.remove_ref = remove_ref
         self.w, self.h = 480, 480
 
-        self.X = [df.iloc[idx].frame for idx in range(self.df.shape[0])]
+        if frame_type == 'diff_frame':
+            self.X = [df.iloc[idx].diff_frame for idx in range(self.df.shape[0])]
+        else:
+            self.X = [df.iloc[idx].frame for idx in range(self.df.shape[0])]
+            
         if params['input_type'] != 'single':
             self.X_ref = [df.iloc[idx].ref_frame for idx in range(self.df.shape[0])]
         else:
