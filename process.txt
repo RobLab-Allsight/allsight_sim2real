@@ -47,3 +47,7 @@ weekend runs:
     osher3 (): python3 train.py --name allsight_67 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --distil_policy linear --distil_slope 0.015 --lambda_C 0.005 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002
     curtis2(): python3 train.py --name allsight_68 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002
     alon3  (): python3 train.py --name allsight_69 --model diff_cycle_gan --n_epochs 40 --n_epochs_decay 15 --epoch_distil 45 --lambda_C 0.05 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002 --lambda_identity 0.0 
+
+
+    alon4: python3 train.py --name allsight_70 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002
+    alon5: python3 train.py --name allsight_71 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002 --lambda_identity 0.0 
