@@ -111,7 +111,6 @@ def circle_mask(size=(224, 224), border=10, fix=(0,0)):
     mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
     return mask
 
-
 def inv_foreground(ref_frame, diff, offset=0.0):
         
         mask = circle_mask()
@@ -125,7 +124,7 @@ def inv_foreground(ref_frame, diff, offset=0.0):
         frame = frame*mask
 
         return frame
-    
+
 def foreground(frame, ref_frame, offset=0.0):
         mask = circle_mask()
         
