@@ -171,17 +171,17 @@ class Trainer(object):
                                  [0.229, 0.224, 0.225])
         ])
 
-        self.originalset = TactileSimDataset(self.model_params, train_df, output_type, self.train_transform,
+        self.originalset = TactileSimDataset(self.model_params, train_df, output_type, self.params['frame_type'], self.train_transform,
                                           apply_mask=False)
 
         if self.params['aug']:
-            self.augset = TactileSimDataset(self.model_params, train_df, output_type, self.aug_transform, apply_mask=False)
+            self.augset = TactileSimDataset(self.model_params, train_df, output_type,self.params['frame_type'], self.aug_transform, apply_mask=False)
             self.trainset = torch.utils.data.ConcatDataset([self.originalset, self.augset])
         else:
             self.trainset = self.originalset
 
-        self.validset = TactileSimDataset(self.model_params, valid_df, output_type, self.test_transform, apply_mask=False)
-        self.testset = TactileSimDataset(self.model_params, test_df, output_type, self.test_transform, apply_mask=False)
+        self.validset = TactileSimDataset(self.model_params, valid_df, output_type,self.params['frame_type'], self.test_transform, apply_mask=False)
+        self.testset = TactileSimDataset(self.model_params, test_df, output_type,self.params['frame_type'], self.test_transform, apply_mask=False)
 
         self.trainloader = DataLoader(self.trainset, batch_size=self.params['batch_size'], shuffle=True, drop_last=False)
         self.validloader = DataLoader(self.validset, batch_size=self.params['batch_size'], shuffle=True, drop_last=False)
@@ -516,6 +516,8 @@ def main():
     parser.add_argument('--gan_name', type=str, default='cgan', help='cgan , distil_cgan')
     parser.add_argument('--gan_num', default= 1, type=str)
     parser.add_argument('--gan_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
+
+    parser.add_argument('--frame_type', type=str, default='frame', help= 'frame or diff_frame')
 
     parser.add_argument('--deterministic', action='store_true', default=True)
     parser.add_argument('--portion', '-pr', type=float, default=1.0)

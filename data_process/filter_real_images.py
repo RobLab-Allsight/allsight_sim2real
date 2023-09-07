@@ -116,7 +116,7 @@ def main(args):
     pc_name = os.getlogin()
     leds = args.leds
     gel = 'clear' #clear / markers
-    indenter = ['sphere3'] #, 'ellipse', 'square', 'hexagon'] # id 3 only 20 (3mm radius)
+    indenter = ['ellipse', 'square'] #,'sphere3', 'ellipse', 'square', 'hexagon'] # id 3 only 20 (3mm radius)
     data_name_1 = f'real_train_{args.real_data_num}'
     data_name_2 = f'real_test_{args.real_data_num}'
     # real_paths = [f"./datasets/data_Allsight/all_data/allsight_dataset/{gel}/{leds}/data/{ind}" for ind in indenter]
@@ -126,8 +126,8 @@ def main(args):
     n_sam_train = 4000  
     n_sam_test = 1500   
 
-    buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12,13,14,16,17,18,19], test_sensor_id=[15])
-
+    buffer_train_paths, buffer_test_paths, sensors_1, sensors_2 = get_buffer_paths(leds, gel, indenter,  train_sensor_id=[12], test_sensor_id=[15]) #,13,14,16,17,18,19
+    # ind = ['ellipse', 'ellipse','square' ,'square']
     ###########################
     # Define data frames
     ###########################
@@ -145,9 +145,11 @@ def main(args):
         if idx == 0:
             df_data_real_test = pd.read_json(p).transpose()
             df_data_real_test['sensor_id'] = sensors_2[idx]
+            # df_data_real_test['indenter'] = ind[idx]
         else:
             df = pd.read_json(p).transpose()
             df['sensor_id'] = sensors_2[idx]
+            # df['indenter'] = ind[idx]
             df_data_real_test = pd.concat([df_data_real_test, df], axis=0)
     
     # If we do filter by force         
@@ -169,7 +171,7 @@ def main(args):
     df_data_real_train = filter_id_time(df_data_real_train, 730)
     
     # df_data_real_train = df_data_real_train[df_data_real_train.time > 3.5]
-    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.25]
+    df_data_real_test = df_data_real_test[df_data_real_test.time > 4.3]
     ###
     df_train_up = df_data_real_train[df_data_real_train.num > 8]
     df_train_down = df_data_real_train[df_data_real_train.num <= 8]
@@ -179,14 +181,14 @@ def main(args):
     
     df_test_up = df_data_real_test[df_data_real_test.num > 8]
     df_test_down = df_data_real_test[df_data_real_test.num <= 8]
-    df_test_up = df_test_up.drop(df_test_up.index[1::3])
+    df_test_up = df_test_up.drop(df_test_up.index[1::2])
     df_test_up = df_test_up.reset_index(drop=True)
     df_test = pd.concat([df_test_down, df_test_up], ignore_index=True)
     ###
     # df_train = df_data_real_train
     # df_test = df_data_real_test
     ###
-    df_train = df_train.sample(n=n_sam_train, random_state=42)
+    # df_train = df_train.sample(n=n_sam_train, random_state=42)
     df_test = df_test.sample(n=n_sam_test, random_state=42)
     
     print(f'train: {df_train.shape}')
@@ -226,7 +228,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process images and related JSON data.')
-    parser.add_argument('--real_data_num', type=int, default=1, help='real JSON path')
+    parser.add_argument('--real_data_num', type=int, default=9, help='real JSON path')
     parser.add_argument('--save', default=False)
     parser.add_argument('--leds', type=str, default='white', help='rrrgggbbb | white')
     args = parser.parse_args()
