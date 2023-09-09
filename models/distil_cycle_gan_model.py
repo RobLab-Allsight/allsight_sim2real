@@ -79,8 +79,8 @@ class DistilCycleGANModel(BaseModel):
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
 
         # Load regrssion models
-        self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_8.pth', self.gpu_ids)
-        self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_8.pth', self.gpu_ids)
+        self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_8.pth', self.gpu_ids)
+        self.sim_regressor= networks.define_regressor('./checkpoints/regression_models/white/sim_8.pth', self.gpu_ids)
 
         if self.isTrain:  # define discriminators
             self.netD_A = networks.define_D(opt.output_nc, opt.ndf, opt.netD,

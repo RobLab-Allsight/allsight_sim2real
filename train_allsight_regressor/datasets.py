@@ -110,6 +110,9 @@ def get_buffer_paths_sim(leds, indenter, params):
     train_path = './datasets/data_Allsight/json_data/sim_test_8_transformed.json'
     test_path = './datasets/data_Allsight/json_data/real_test_9_transformed.json'  
     return [train_path,test_path]
+    # train_path = './datasets/data_Allsight/json_data/real_train_8_transformed.json'
+    # test_path = './datasets/data_Allsight/json_data/real_test_9_transformed.json'
+    # return [train_path,test_path]
 
 
 def get_inputs_and_targets(group, output_type):

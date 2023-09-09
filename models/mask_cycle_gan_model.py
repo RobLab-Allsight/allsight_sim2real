@@ -89,8 +89,8 @@ class MaskCycleGANModel(BaseModel):
             self.real_df = pd.read_json('./datasets/data_Allsight/json_data/real_train_8_transformed.json').transpose()
             self.sim_df = pd.read_json('./datasets/data_Allsight/json_data/sim_train_8_transformed.json').transpose()
             # Load regrssion models
-            self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_8.pth', self.gpu_ids)
-            self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_8.pth', self.gpu_ids)
+            self.real_regressor = networks.define_regressor('./checkpoints/regression_models/white/real_8.pth', self.gpu_ids)
+            self.sim_regressor = networks.define_regressor('./checkpoints/regression_models/white/sim_8.pth', self.gpu_ids)
 
             self.img_dim = opt.crop_size
             

@@ -5,7 +5,7 @@ Merge sim data: (1 time - manual)
     python3 data_process/merge_json_sim.py 
 
 Add diff frame:
-    python3 data_process/add_diff_frame.py --data_type real --data_set train --data_num 8 --save True
+    python3 data_process/add_diff_frame.py --data_type real --data_set test --data_num 9 --save True
 
 Transfer images to gan folders: 
     python3 data_process/transfer_images.py --data_type real --data_num 8 --folder_type A --samples 0
@@ -47,3 +47,7 @@ weekend runs:
     osher3 (): python3 train.py --name allsight_67 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --distil_policy linear --distil_slope 0.015 --lambda_C 0.005 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002
     curtis2(): python3 train.py --name allsight_68 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002
     alon3  (): python3 train.py --name allsight_69 --model diff_cycle_gan --n_epochs 40 --n_epochs_decay 15 --epoch_distil 45 --lambda_C 0.05 --lambda_A 20 --lambda_B 30 --lambda_D 30 --lr 0.00002 --lambda_identity 0.0 
+
+
+    alon4: python3 train.py --name allsight_70 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002
+    alon5: python3 train.py --name allsight_71 --model diff_cycle_gan --n_epochs 45 --n_epochs_decay 25 --epoch_distil 35 --lambda_C 0.05 --lambda_A 20 --lambda_B 25 --lambda_D 30 --lr 0.00002 --lambda_identity 0.0 
