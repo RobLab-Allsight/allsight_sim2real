@@ -10,6 +10,7 @@
 <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style&logo=PyTorch&logoColor=white" alt="Pytorch" />
 <img src="https://img.shields.io/badge/pandas-150458.svg?style&logo=pandas&logoColor=white" alt="pandas" />
 <img src="https://img.shields.io/badge/NumPy-013243.svg?style&logo=NumPy&logoColor=white" alt="NumPy" />
+<img src="https://img.shields.io/badge/opencv-%23white.svg?style&logo=opencv&logoColor=white" alt="OPENCV" />
 </p>
 
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="https://opensource.org/licenses/MIT" />
@@ -35,8 +36,7 @@
 
 
 ## 📍 Overview
-
-
+This repository contains the code and resources related to the paper ["Augmenting Tactile Simulators with Real-like and Zero-Shot Capabilities"](https://arxiv.org/abs/2309.10409) (under review). The paper introduces SightGAN, a cutting-edge solution for enhancing tactile perception in high-resolution tactile sensors such as [allsight](https://github.com/osheraz/allsight) sensor.
 
 ---
 
@@ -160,7 +160,8 @@ pip install -r requirements.txt
 
 ## 📄 License
 
-This project is licensed under the `ℹ️  LICENSE-TYPE` License. See the [LICENSE-Type](LICENSE) file for additional info.
+This repository is licensed under the MIT License. Feel free to use, modify, and distribute the code as per the terms of this license.
+//MIT LICENSE
 
 ---
 
