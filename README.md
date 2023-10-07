@@ -47,7 +47,7 @@ This repository contains the code and resources related to the paper ["Augmentin
 A bi-directional Generative Adversarial Network which built upon CycleGAN and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
 
 <h1 align="center">
-<img src="website/pic/Front.png" width="200" height="200" />
+<img src="website/pic/Front.png" width="300" height="400" />
 </h1>
 
 SightGAN introduces contact-specific consistency losses:
