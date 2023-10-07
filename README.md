@@ -46,7 +46,9 @@ This repository contains the code and resources related to the paper ["Augmentin
 #### SightGAN
 A bi-directional Generative Adversarial Network which built upon CycleGAN and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
 
-![](website/pic/Front.png)
+<h1 align="center">
+<img src="website/pic/Front.png" width="200" height="200" />
+</h1>
 
 SightGAN introduces contact-specific consistency losses:
 - Spatial Contact Consistency loss
@@ -54,7 +56,9 @@ SightGAN introduces contact-specific consistency losses:
 
 The GAN diagram and training process can be represented as follow:
 
-![](website/pic/Scheme.png)
+<h1 align="center">
+<img src="website/pic/Scheme.png"/>
+</h1>
 
 
 #### Allsight Sim
