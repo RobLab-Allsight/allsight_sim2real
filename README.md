@@ -10,7 +10,7 @@
 <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style&logo=PyTorch&logoColor=white" alt="Pytorch" />
 <img src="https://img.shields.io/badge/pandas-150458.svg?style&logo=pandas&logoColor=white" alt="pandas" />
 <img src="https://img.shields.io/badge/NumPy-013243.svg?style&logo=NumPy&logoColor=white" alt="NumPy" />
-<img src="https://img.shields.io/badge/opencv-%23white.svg?style&logo=opencv&logoColor=white" alt="OPENCV" />
+<img src="https://img.shields.io/badge/opencv-%23white.svg?style&logo=opencv&logoColor=white" alt="opencv" />
 </p>
 
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="https://opensource.org/licenses/MIT" />
@@ -24,7 +24,9 @@
 
 - [📖 Table of Contents](#-table-of-contents)
 - [📍 Overview](#-overview)
-- [:computer: Allsight Sim](#computer-allsight-sim)
+- [:key: Key Features](#key-key-features)
+    - [SightGAN](#sightgan)
+    - [Allsight Sim](#allsight-sim)
 - [📂 Contents](#-contents)
 - [🚀 Getting Started](#-getting-started)
   - [🔧 Installation](#-installation)
@@ -40,8 +42,30 @@ This repository contains the code and resources related to the paper ["Augmentin
 
 ---
 
-## :computer: Allsight Sim
+## :key: Key Features
+#### SightGAN
+A bi-directional Generative Adversarial Network which built upon CycleGAN and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
 
+![](website/pic/Front.png)
+
+SightGAN introduces contact-specific consistency losses:
+- Spatial Contact Consistency loss
+- Pixel-wise Contact Region Consistency loss
+
+The GAN diagram and training process can be represented as follow:
+
+![](website/pic/Scheme.png)
+
+
+#### Allsight Sim
+
+The simulation data was obtained using tha [allsight_sim](https://github.com/osheraz/allsight_sim) package that utilizing [TACTO](https://github.com/facebookresearch/tacto)
+a physics-engine simulator for optical-based tactile sensors.
+
+For more information about the simulation package please see the link provided above.
+
+- Example for data collection session
+![](website/gif/allsight_collect_data.gif)
 
 
 ---
