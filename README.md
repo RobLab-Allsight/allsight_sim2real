@@ -78,8 +78,6 @@ The GAN diagram and training process can be represented as follow:
 ![](website/gif/allsight_demo_gan.gif)
 
 
-
-
 ---
 
 ## 📂 Contents
