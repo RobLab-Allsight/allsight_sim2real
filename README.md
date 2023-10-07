@@ -33,7 +33,7 @@
   - [🤖 Running allsight\_sim2real](#-running-allsight_sim2real)
 - [📄 License](#-license)
 - [👏 Acknowledgments](#-acknowledgments)
-
+- [:clipboard: BibTeX](#clipboard-bibtex)
 ---
 
 
@@ -44,7 +44,7 @@ This repository contains the code and resources related to the paper ["Augmentin
 
 ## :key: Key Features
 #### SightGAN
-A bi-directional Generative Adversarial Network which built upon CycleGAN and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
+A bi-directional Generative Adversarial Network which built upon [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
 
 <h1 align="center">
 <img src="website/pic/Front.png" width="300" height="400" />
@@ -92,20 +92,18 @@ This repository contains several directories with the details as follow:
 </details>
 
 <details closed><summary>Options</summary>
-Python files forked from CycleGAN repo (link in the acknowldegments)
+Python files forked from CycleGAN repo
 
 </details>
 
 <details closed><summary>Models</summary>
 
-| File                                                                                                                     | Summary                   |
-| ---                                                                                                                      | ---                       |
-| [networks.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/networks.py)                         | HTTPStatus Exception: 429 |
-| [diff_cycle_gan_model.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/diff_cycle_gan_model.py) | HTTPStatus Exception: 429 |
-| [test_model.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/test_model.py)                     | HTTPStatus Exception: 429 |
-| [cycle_gan_model.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/cycle_gan_model.py)           | HTTPStatus Exception: 429 |
-| [pre_process.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/pre_process.py)                   | HTTPStatus Exception: 429 |
-| [base_model.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/base_model.py)                     | HTTPStatus Exception: 429 |
+
+| File                                                                                                                      | Summary                   |
+| ---                                                                                                                       | ---                       |
+| [diff_cycle_gan_model.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/models/diff_cycle_gan_model.py)                       | The class of SightGAN model with its auxilliary losses |
+
+All the rest of the files were forked from CycleGAN and helps for building and managing the models during training and test procedures.
 
 </details>
 
@@ -113,41 +111,24 @@ Python files forked from CycleGAN repo (link in the acknowldegments)
 
 | File                                                                                                                                   | Summary                   |
 | ---                                                                                                                                    | ---                       |
-| [merge_json_sim.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/merge_json_sim.py)                     | HTTPStatus Exception: 429 |
-| [sim2gan_json.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/sim2gan_json.py)                         | HTTPStatus Exception: 429 |
-| [vis_utils.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/vis_utils.py)                               | HTTPStatus Exception: 429 |
-| [update_ref_frame_gan.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/update_ref_frame_gan.py)         | HTTPStatus Exception: 429 |
-| [filter_real_images.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/filter_real_images.py)             | HTTPStatus Exception: 429 |
-| [transfer_images.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/transfer_images.py)                   | HTTPStatus Exception: 429 |
-| [display_images.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/display_images.py)                     | HTTPStatus Exception: 429 |
-| [add_diff_frame.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/add_diff_frame.py)                     | HTTPStatus Exception: 429 |
-| [compare_sim_real.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/compare_sim_real.py)                 | HTTPStatus Exception: 429 |
-| [update_compose_frame_gan.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/update_compose_frame_gan.py) | HTTPStatus Exception: 429 |
+| [merge_json_sim.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/merge_json_sim.py)                     | Merging all the dataset from simulation into main json file database |
+| [sim2gan_json.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/sim2gan_json.py)                         | Updata the json file with generated image pathes |
+| [filter_real_images.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/filter_real_images.py)             | Filtering the real data and creating a json file database |
+| [transfer_images.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/transfer_images.py)                   | Transfering iamges from sim and real databases to the train/test folders |
+| [add_diff_frame.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/data_process/add_diff_frame.py)                     | update the json file with the substracted images |
 
 </details>
 
 <details closed><summary>Train_allsight_regressor</summary>
 
-| File                                                                                                                 | Summary                   |
-| ---                                                                                                                  | ---                       |
-| [img_utils.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/img_utils.py) | HTTPStatus Exception: 429 |
-| [vis_utils.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/vis_utils.py) | HTTPStatus Exception: 429 |
-| [models.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/models.py)       | HTTPStatus Exception: 429 |
-| [misc.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/misc.py)           | HTTPStatus Exception: 429 |
-| [surface.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/surface.py)     | HTTPStatus Exception: 429 |
-| [datasets.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/datasets.py)   | HTTPStatus Exception: 429 |
-| [geometry.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/train_allsight_regressor/geometry.py)   | HTTPStatus Exception: 429 |
+A Python package for training the spatial contact estimator and inherit the models.
 
 </details>
 
 <details closed><summary>Util</summary>
 
-| File                                                                                               | Summary                   |
-| ---                                                                                                | ---                       |
-| [image_pool.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/util/image_pool.py) | HTTPStatus Exception: 429 |
-| [util.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/util/util.py)             | HTTPStatus Exception: 429 |
-| [visualizer.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/util/visualizer.py) | HTTPStatus Exception: 429 |
-| [html.py](https://github.com/RobLab-Allsight/allsight_sim2real/blob/main/util/html.py)             | HTTPStatus Exception: 429 |
+Python files forked from CycleGAN repo
+
 
 </details>
 
@@ -182,14 +163,43 @@ pip install -r requirements.txt
 
 ### 🤖 Running allsight_sim2real
 
+NOTE: Be aware for the pathes adjusts and adaptation for your custom dataset. 
+NOTE: Please Be aware for the arguments adjusts needed for every script.
+
+Assuming you have a dataset folder and updated package with the relevant pathes to your dataset:
+
+Filter the real data:
+```sh
+python3 data_process/filter_real_images.py 
+```
+
+Merge sim data:
+```sh
+python3 data_process/merge_json_sim.py 
+```
+
+Add diff frame:
+```sh
+python3 data_process/add_diff_frame.py
+```
+
+Transfer images to gan folders: 
+```sh
+python3 data_process/transfer_images.py 
+```
+
+Train CycleGAN:
+```sh
+python3 train.py <arguments> 
+```
+
 
 
 ---
 
 ## 📄 License
 
-This repository is licensed under the MIT License. Feel free to use, modify, and distribute the code as per the terms of this license.
-//MIT LICENSE
+This repository is licensed under the MIT [License](/LICENSE). Feel free to use, modify, and distribute the code as per the terms of this license.
 
 ---
 
@@ -197,6 +207,21 @@ This repository is licensed under the MIT License. Feel free to use, modify, and
 
 - Our code is inspired by [CyclGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).
 - Simulation was implemented using [TACTO](https://github.com/facebookresearch/tacto). 
+
+
+---
+## :clipboard: BibTeX
+
+```
+@misc{azulay2023augmenting,
+      title={Augmenting Tactile Simulators with Real-like and Zero-Shot Capabilities}, 
+      author={Osher Azulay and Alon Mizrahi and Nimrod Curtis and Avishai Sintov},
+      year={2023},
+      eprint={2309.10409},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO}
+}
+```
 
 
 [↑ Return](#Top)
