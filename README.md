@@ -25,8 +25,8 @@
 - [📖 Table of Contents](#-table-of-contents)
 - [📍 Overview](#-overview)
 - [:key: Key Features](#key-key-features)
-    - [SightGAN](#sightgan)
     - [Allsight Sim](#allsight-sim)
+    - [SightGAN](#sightgan)
 - [📂 Contents](#-contents)
 - [🚀 Getting Started](#-getting-started)
   - [🔧 Installation](#-installation)
@@ -43,6 +43,20 @@ This repository contains the code and resources related to the paper ["Augmentin
 ---
 
 ## :key: Key Features
+
+
+
+#### Allsight Sim
+
+The simulation data was obtained using tha [allsight_sim](https://github.com/osheraz/allsight_sim) package that utilizing [TACTO](https://github.com/facebookresearch/tacto)
+a physics-engine simulator for optical-based tactile sensors.
+
+For more information about the simulation package please see the link provided above.
+
+- Example for data collection session
+![](website/gif/allsight_collect_data.gif)
+
+
 #### SightGAN
 A bi-directional Generative Adversarial Network which built upon [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and designed to bridge the reality gap between simulated and real tactile data, particularly for high-resolution tactile sensors.
 
@@ -60,16 +74,10 @@ The GAN diagram and training process can be represented as follow:
 <img src="website/pic/Scheme.png"/>
 </h1>
 
+- Example of SightGAN integrated in the simulation
+![](website/gif/allsight_demo_gan.gif)
 
-#### Allsight Sim
 
-The simulation data was obtained using tha [allsight_sim](https://github.com/osheraz/allsight_sim) package that utilizing [TACTO](https://github.com/facebookresearch/tacto)
-a physics-engine simulator for optical-based tactile sensors.
-
-For more information about the simulation package please see the link provided above.
-
-- Example for data collection session
-![](website/gif/allsight_collect_data.gif)
 
 
 ---
