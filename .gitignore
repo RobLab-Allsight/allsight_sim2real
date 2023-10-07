@@ -4,7 +4,6 @@ contrib
 allsight_contrib
 web
 checkpoints
-*.png
 *.pth
 */__pycache__
 results
