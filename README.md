@@ -170,6 +170,7 @@ pip install -r requirements.txt
 ### 🤖 Running allsight_sim2real
 
 NOTE: Be aware for the pathes adjusts and adaptation for your custom dataset. 
+
 NOTE: Please Be aware for the arguments adjusts needed for every script.
 
 Assuming you have a dataset folder and updated package with the relevant pathes to your dataset:
